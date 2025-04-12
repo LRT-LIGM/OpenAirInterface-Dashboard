@@ -9,6 +9,10 @@ Welcome to the official documentation site for the **OAI Dashboard** — a web-b
 - Manage VM-based simulations using OpenStack
 - Control your lab from one clean UI
 
+## Project overview 
+
+![Project Overview](architecture_system-1.png)
+
 ## Get Started
 
 - [Usage Guide](usage.md)
