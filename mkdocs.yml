@@ -1,0 +1,50 @@
+site_name: OAI Dashboard Docs
+site_url: https://your-doc-site-url.com
+repo_url: https://github.com/your-org/oaidashboard
+repo_name: GitHub
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Usage Guide: usage.md
+      - Intern Roadmap: intern-roadmap.md
+  - API Reference:
+      - Backend API: api/backend.md
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - codehilite
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["backend"]
+  
