@@ -29,7 +29,7 @@ jobs:
         run: mkdocs gh-deploy --force
 
   deploy:
-    needs: build_mkdocs
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
