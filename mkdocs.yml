@@ -1,6 +1,6 @@
 site_name: OAI Dashboard Docs
-site_url: https://your-doc-site-url.com
-repo_url: https://github.com/your-org/oaidashboard
+site_url:  https://lrt-ligm.github.io/OpenAirInterface-Dashboard
+repo_url: https://github.com/LRT-LIGM/OpenAirInterface-Dashboard
 repo_name: GitHub
 
 theme:
