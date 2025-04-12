@@ -1,5 +1,6 @@
 # OpenAirInterface-Dashboard
-This project is a web dashboard designed to monitor a 5G architecture deployed with open air interface and open5GS
+
+This project is a web dashboard, part of an internship, designed to monitor a 5G architecture deployed with open air interface and open5GS. 
 
 ## How to run
 
