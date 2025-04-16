@@ -25,11 +25,14 @@ theme:
 
 nav:
   - Home: index.md
+
   - Getting Started:
       - Usage Guide: usage.md
+      - Specification : spec.md
       - Intern Roadmap: intern-roadmap.md
   - API Reference:
       - Backend API: api/backend.md
+
 
 markdown_extensions:
   - toc:
