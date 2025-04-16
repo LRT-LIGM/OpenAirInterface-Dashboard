@@ -28,7 +28,7 @@ nav:
 
   - Getting Started:
       - Usage Guide: usage.md
-      - Specification : spec.md
+      - Analysis of competitor : analysis.md
       - Intern Roadmap: intern-roadmap.md
   - API Reference:
       - Backend API: api/backend.md

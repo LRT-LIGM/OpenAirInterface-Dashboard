@@ -13,7 +13,7 @@ Welcome to the official documentation site for the **OAI Dashboard** — a web-b
 
 ![Project Overview](architecture_system-1.png)
 
-[Specification link](spec.md)
+[Analysis link](analysis.md)
 
 ## Get Started
 
