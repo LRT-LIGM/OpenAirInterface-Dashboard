@@ -2,145 +2,121 @@
 
 ## Route Table
 
-|   Method    |                          Path                          |                   Description                    |
-|:-----------:|:------------------------------------------------------:|:------------------------------------------------:|
-|    `GET`    |              [`/machines`](#get-machines)              |    Lists all available machines with their id    |
-|    `GET`    |     [`/machine/{id}/status`](#get-machineidstatus)     |             Retrieves machine status             |
-|    `GET`    |  [`/machine/{id}/client_id`](#get-machineidclient_id)  |             Retrieves the client id              |
-|    `GET`    | [`/machine/{id}/machine_id`](#get-machineidmachine_id) |             Retrieves the machine id             |
-|    `GET`    |        [`/machine/{id}/sdr`](#get-machineidsdr)        |            Retrieves the machine sdr             |
-|    `GET`    |         [`/machine/{id}/ip`](#get-machineidip)         |             Retrieves the machine ip             |
-|   `POST`    |    [`/machine/{id}/reboot`](#post-machineidreboot)     |            Reboots a specific machine            |
-|    `GET`    |           [`/core/status`](#get-corestatus)            |   Retrieves the status of the 5G core network    |
-|   `POST`    |            [`/core/start`](#post-corestart)            |                Starts the 5G core                |
-|   `POST`    |          [`/core/restart`](#post-corerestart)          |               Restarts the 5G core               |
-|   `POST`    |             [`/core/stop`](#post-corestop)             |                Stops the 5G core                 |
-|   `POST`    |             [`/gnb/start`](#post-gnbstart)             |                  Starts the gNB                  |
-|   `POST`    |              [`/gnb/stop`](#post-gnbstop)              |                  Stops the gNB                   |
-|   `POST`    |           [`/gnb/restart`](#post-gnbrestart)           |                 Restarts the gNB                 |
-|    `GET`    |     [`/gnb/configuration`](#get-gnbconfiguration)      |     Retrieves the current gNB configuration      |
-|   `POST`    |     [`/gnb/configuration`](#post-gnbconfiguration)     |          Saves a new gNB configuration           |
-| `Websocket` |         [`/ws/gnb/logs`](#websocket-wsgnblogs)         |     Retrieves gNB logs (runtime/compilation)     |
-|   `POST`    |             [`/gnb/reset`](#post-gnbreset)             |       Resets gNB configuration to default        |
-|   `POST`    |           [`/gnb/compile`](#post-gnbcompile)           |           Compiles the gNB source code           |
-|    `GET`    |           [`/summary/gnb`](#get-summarygnb)            |         Lists gNBs connected to the core         |
-|    `GET`    |            [`/summary/ue`](#get-summaryue)             |         Lists UEs connected to the core          |
-|    `GET`    |   [`/services/nssf/status`](#get-servicesnssfstatus)   |            Retrieves the NSSF status             |
-|    `GET`    |   [`/services/ausf/status`](#get-servicesausfstatus)   |            Retrieves the AUSF status             |
-|    `GET`    |    [`/services/nrf/status`](#get-servicesnrfstatus)    |             Retrieves the NRF status             |
-|    `GET`    |    [`/services/smf/status`](#get-servicessmfstatus)    |             Retrieves the SMF status             |
-|    `GET`    |    [`/services/udr/status`](#get-servicesudrstatus)    |             Retrieves the UDR status             |
-|    `GET`    |    [`/services/upf/status`](#get-servicesupfstatus)    |             Retrieves the UPF status             |
-|    `GET`    |    [`/services/amf/status`](#get-servicesamfstatus)    |             Retrieves the AMF status             |
-|    `GET`    |    [`/services/udm/status`](#get-servicesudmstatus)    |             Retrieves the UDM status             |
-|    `GET`    |    [`/services/ims/status`](#get-servicesimsstatus)    |     Retrieves the status of the IMS service      |
-|   `POST`    |      [`/edn/uplink/start`](#post-ednuplinkstart)       |    Starts the iPerf server for uplink testing    |
-|   `POST`    |    [`/edn/downlink/start`](#post-edndownlinkstart)     |  Launches the iPerf client for downlink testing  |
-|    `GET`    |            [`/edn/status`](#get-ednstatus)             |    Retrieves the status of the EDN interface     |
-|    `GET`    |           [`/edn/command`](#get-edncommand)            |   Generates the iPerf command for UE execution   |
-|    `GET`    |            [`/ran/status`](#get-ranstatus)             |               Retrieves RAN status               |
-|    `GET`    |     [`/ran/configuration`](#get-ranconfiguration)      |       Retrieves current RAN configuration        |
-|    `GET`    |                  [`/pcap`](#get-pcap)                  | Retrieves captured packets (Wireshark / TShark)  |
-| `Websocket` |     [`/ws/avgdownlink`](#websocket-wsavgdownlink)      | Real-time average stream of downlink throughput  |
-| `Websocket` |       [`/ws/avguplink`](#websocket-wsavguplink)        |  Real-time average stream of uplink throughput   |
-| `Websocket` |      [`/ws/ran/bitrate`](#websocket-wsranbitrate)      |         Real-time stream of RAN bitrate          |
-| `Websocket` |   [`/ws/{ue_id}/{metric}`](#websocket-wsue_idmetric)   |    Real-time stream for a specific UE metric     |
-| `Websocket` |            [`/ws/pcap`](#websocket-wspcap)             | Real-time stream of captured packets (Wireshark) |
+|   Method    |                            Path                             |                         Description                         |
+|:-----------:|:-----------------------------------------------------------:|:-----------------------------------------------------------:|
+|    `GET`    |                    [`/gnbs`](#get-gnbs)                     |           Lists all available gNBs with their id            |
+|    `GET`    |           [`/gnb/{id}/status`](#get-gnbidstatus)            |                    Retrieves gNB status                     |
+|    `GET`    |              [`/gnb/{id}/sdr`](#get-gnbidsdr)               |                    Retrieves the gNB sdr                    |
+|    `GET`    |               [`/gnb/{id}/ip`](#get-gnbidip)                |                    Retrieves the gNB ip                     |
+|   `POST`    |           [`/gnb/{id}/reboot`](#post-gnbidreboot)           |                   Reboots a specific gNB                    |
+|    `GET`    |              [`/core/status`](#get-corestatus)              |         Retrieves the status of the 5G core network         |
+|   `POST`    |              [`/core/start`](#post-corestart)               |                     Starts the 5G core                      |
+|   `POST`    |            [`/core/restart`](#post-corerestart)             |                    Restarts the 5G core                     |
+|   `POST`    |               [`/core/stop`](#post-corestop)                |                      Stops the 5G core                      |
+|   `POST`    |               [`/gnb/start`](#post-gnbstart)                |                       Starts the gNB                        |
+|   `POST`    |                [`/gnb/stop`](#post-gnbstop)                 |                        Stops the gNB                        |
+|   `POST`    |             [`/gnb/restart`](#post-gnbrestart)              |                      Restarts the gNB                       |
+|    `GET`    |        [`/gnb/configuration`](#get-gnbconfiguration)        |           Retrieves the current gNB configuration           |
+|   `POST`    |       [`/gnb/configuration`](#post-gnbconfiguration)        |                Saves a new gNB configuration                |
+| `Websocket` |           [`/ws/gnb/logs`](#websocket-wsgnblogs)            |          Retrieves gNB logs (runtime/compilation)           |
+|   `POST`    |               [`/gnb/reset`](#post-gnbreset)                |             Resets gNB configuration to default             |
+|   `POST`    |             [`/gnb/compile`](#post-gnbcompile)              |                Compiles the gNB source code                 |
+|    `GET`    |              [`/summary/gnb`](#get-summarygnb)              |              Lists gNBs connected to the core               |
+|    `GET`    |               [`/summary/ue`](#get-summaryue)               |               Lists UEs connected to the core               |
+|    `GET`    |         [`/core/nssf/status`](#get-corenssfstatus)          |                  Retrieves the NSSF status                  |
+|    `GET`    |         [`/core/ausf/status`](#get-coreausfstatus)          |                  Retrieves the AUSF status                  |
+|    `GET`    |          [`/core/nrf/status`](#get-corenrfstatus)           |                  Retrieves the NRF status                   |
+|    `GET`    |          [`/core/smf/status`](#get-coresmfstatus)           |                  Retrieves the SMF status                   |
+|    `GET`    |          [`/core/udr/status`](#get-coreudrstatus)           |                  Retrieves the UDR status                   |
+|    `GET`    |          [`/core/upf/status`](#get-coreupfstatus)           |                  Retrieves the UPF status                   |
+|    `GET`    |          [`/core/amf/status`](#get-coreamfstatus)           |                  Retrieves the AMF status                   |
+|    `GET`    |          [`/core/udm/status`](#get-coreudmstatus)           |                  Retrieves the UDM status                   |
+|    `GET`    |          [`/core/ims/status`](#get-coreimsstatus)           |           Retrieves the status of the IMS service           |
+|   `POST`    |   [`/bandwidth/uplink/start`](#post-bandwidthuplinkstart)   |         Starts the iPerf server for uplink testing          |
+|   `POST`    | [`/bandwidth/downlink/start`](#post-bandwidthdownlinkstart) |       Launches the iPerf client for downlink testing        |
+|    `GET`    |         [`/bandwidth/status`](#get-bandwidthstatus)         |     Retrieves the status of the bandwidth testing tool      |
+|    `GET`    |        [`/bandwidth/command`](#get-bandwidthcommand)        |        Generates the iPerf command for UE execution         |
+|    `GET`    |               [`/ran/status`](#get-ranstatus)               |                    Retrieves RAN status                     |
+|    `GET`    |        [`/ran/configuration`](#get-ranconfiguration)        |             Retrieves current RAN configuration             |
+|    `GET`    |                    [`/pcap`](#get-pcap)                     |       Retrieves captured packets (Wireshark / TShark)       |
+| `Websocket` |        [`/ws/avgdownlink`](#websocket-wsavgdownlink)        |       Real-time average stream of downlink throughput       |
+| `Websocket` |          [`/ws/avguplink`](#websocket-wsavguplink)          |        Real-time average stream of uplink throughput        |
+| `Websocket` |        [`/ws/ran/bitrate`](#websocket-wsranbitrate)         |               Real-time stream of RAN bitrate               |
+| `Websocket` |     [`/ws/{ue_id}/{metric}`](#websocket-wsue_idmetric)      |          Real-time stream for a specific UE metric          |
+| `Websocket` |               [`/ws/pcap`](#websocket-wspcap)               |      Real-time stream of captured packets (Wireshark)       |
 
 
-## Machine Selector
+## gNodeB Selector
 
-We would like to define a widget, `widget_machines_selector`, allow the user to select which machines to monitor and control.
+We would like to define a widget, `widget_gnbs_selector`, allow the user to select which gNB (gNodeB Selector) to monitor and control.
 
-The `widget_machines_selector` should display the selected machine name and, when clicked, expand to reveal all available machines.
+The `widget_gnbs_selector` should display the selected gNB name and, when clicked, expand to reveal all available gNBs.
 
-### Machine selector Routes detailed
+### gNB selector Routes detailed
 
 
-###### GET `/machines`
+###### GET `/gnbs`
 
 ```python  
-def get_machines():  
+def get_gnbs():  
     """  
-    GET /machines  
-    Returns a list of all available machines with their names and ID.  
+    GET /gnbs  
+    Returns a list of all available gNBs with their names and ID.  
     """  
     pass
 ```
 
 ---
 
-## Machine Information
+## gNodeB Information
 
-We would like to define a widget, `widget_machine_info`, containing data about the machine.
+We would like to define a widget, `widget_gnb_info`, containing data about the gNB.
 
-`widget_machine_info` should contain the following information :
+`widget_gnb_info` should contain the following information :
 
-- The machine status, either offline or online.
-- The unique client id.
-- The unique machine id.
+- The gNB status, either offline or online.
 - The Software Defined Radio Device being used.
 - The locally assigned IP address.
 - The reboot button.
 
-### Machine information Routes detailed
+### gNodeB information Routes detailed
 
-###### GET  `/machine/{id}/status`
+###### GET  `/gnb/{id}/status`
 ```python 
-def get_machine_status(id: str):
+def get_gnb_status(id: str):
     """ 
-    GET /machine/{id}/status
-    Returns the current status of the selected machine.
+    GET /gnb/{id}/status
+    Returns the current status of the selected gNB.
     """ 
     pass
 ```
 
-###### GET `/machine/{id}/client_id`
+###### GET `/gnb/{id}/sdr`
 ```python 
-def get_machine_client_id(id: str):
+def get_gnb_sdr(id: str):
     """
-    GET /machine/{id}/client_id
-    Returns the unique client ID.
+    GET /gnb/{id}/sdr
+    Returns the SDR device associated with the selected gNB.
     """
     pass
 ```
 
-###### GET `/machine/{id}/machine_id`
+###### GET `/gnb/{id}/ip`
 ```python 
-def get_machine_machine_id(id: str):
+def get_gnb_ip(id: str):
     """
-    GET /machine/{id}/machine_id
-    Returns the machine ID of the selected machine.
+    GET /gnb/{id}/ip
+    Returns the IP address of the selected gNB.
     """
     pass
 ```
 
-###### GET `/machine/{id}/sdr`
+###### POST `/gnb/{id}/reboot`
 ```python 
-def get_machine_sdr(id: str):
-    """
-    GET /machine/{id}/sdr
-    Returns the SDR device associated with the selected machine.
-    """
-    pass
-```
-
-###### GET `/machine/{id}/ip`
-```python 
-def get_machine_ip(id: str):
-    """
-    GET /machine/{id}/ip
-    Returns the IP address of the selected machine.
-    """
-    pass
-```
-
-###### POST `/machine/{id}/reboot`
-```python 
-def post_machine_reboot(id: str):  
+def post_gnb_reboot(id: str):  
     """  
-    POST /machine/{id}/reboot  
-    Triggers a reboot of the selected machine.  
+    POST /gnb/{id}/reboot  
+    Triggers a reboot of the selected gNB.  
     """  
     pass
 ```
@@ -365,87 +341,87 @@ We would like to define a widget, `widget_core_status`, containing data about th
 
 ### Network Status Routes detailed
 
-###### GET `/services/nssf/status`
+###### GET `/core/nssf/status`
 ```python 
 def get_nssf_status():  
     """  
-    GET /services/nssf/status  
+    GET /core/nssf/status  
     Returns the NSSF status.  
     """  
     pass
 ```
 
-###### GET `/services/ausf/status`
+###### GET `/core/ausf/status`
 ```python 
 def get_ausf_status():  
     """  
-    GET /services/ausf/status  
+    GET /core/ausf/status  
     Returns the AUSF status.  
     """  
     pass
 ```
 
-###### GET `/services/nrf/status`
+###### GET `/core/nrf/status`
 ```python 
 def get_nrf_status():  
     """  
-    GET /services/nrf/status  
+    GET /core/nrf/status  
     Returns the NRF status.  
     """  
     pass
 ```
 
-###### GET `/services/smf/status`
+###### GET `/core/smf/status`
 ```python 
 def get_smf_status():  
     """  
-    GET /services/smf/status  
+    GET /core/smf/status  
     Returns the SMF status.  
     """  
     pass
 ```
 
-###### GET `/services/udr/status`
+###### GET `/core/udr/status`
 ```python 
 def get_udr_status():  
     """  
-    GET /services/udr/status  
+    GET /core/udr/status  
     Returns the UDR status.  
     """  
     pass
 ```
 
-###### GET `/services/upf/status`
+###### GET `/core/upf/status`
 ```python 
 def get_upf_status():  
     """  
-    GET /services/upf/status  
+    GET /core/upf/status  
     Returns the UPF status.  
     """  
     pass
 ```
 
-###### GET `/services/amf/status`
+###### GET `/core/amf/status`
 ```python 
 def get_amf_status():  
     """  
-    GET /services/amf/status  
+    GET /core/amf/status  
     Returns the AMF status.  
     """  
     pass
 ```
 
-###### GET `/services/udm/status`
+###### GET `/core/udm/status`
 ```python 
 def get_udm_status():  
     """  
-    GET /services/udm/status  
+    GET /core/udm/status  
     Returns the UDM status.  
     """  
     pass
 ```
 
-### External services
+### External service
 
 #### IP Multimedia subsystem
 
@@ -457,17 +433,17 @@ We would like to define a widget, `widget_IMS`, containing data about the Ip Mul
 
 ### IMS Routes detailed
 
-###### GET `/services/ims/status`
+###### GET `/core/ims/status`
 ```python 
 def get_ims_status():  
     """  
-    GET /services/ims/status  
+    GET /core/ims/status  
     Returns the status of the IP Multimedia Subsystem (IMS).  
     """  
     pass
 ```
 
-#### External Data Network (EDN)
+#### Bandwidth Testing Tool
 
 This widget allows users to test the uplink and downlink throughput between the User Equipment (UE) and the network via the integrated iPerf tool.
 
@@ -488,43 +464,43 @@ So we need to make a command generator with a baseline and custom arguments such
 
 After that it will return the perfect iPerf command for the UE.
 
-### EDN Routes detailed 
+### Measure Routes detailed 
 
-###### POST `/edn/uplink/start`
+###### POST `/bandwidth/uplink/start`
 ```python
-def post_edn_uplink_start():  
+def post_bandwidth_uplink_start():  
     """  
-    POST /edn/uplink/start  
+    POST /bandwidth/uplink/start  
     Starts the uplink iPerf server on the network.  
     """  
     pass
 ```
 
-###### POST `/edn/downlink/start`
+###### POST `/bandwidth/downlink/start`
 ```python
-def post_edn_downlink_start():  
+def post_bandwidth_downlink_start():  
     """  
-    POST /edn/downlink/start  
+    POST /bandwidth/downlink/start  
     Starts the downlink iPerf client to test throughput.  
     """  
     pass
 ```
 
-###### GET `/edn/status `
+###### GET `/bandwidth/status `
 ```python
-def get_edn_status():  
+def get_bandwidth_status():  
     """  
-    GET /edn/status  
-    Returns the current status of the EDN interface.  
+    GET /bandwidth/status  
+    Returns the current status of the bandwidth testing tool interface.  
     """  
     pass
 ```
 
-###### GET `/edn/command `
+###### GET `/bandwidth/command `
 ```python
-def get_edn_command():  
+def get_bandwidth_command():  
     """  
-    GET /edn/command  
+    GET /bandwidth/command  
     Returns the iPerf command to be run on the UE with the given parameters.  
     """  
     pass
