@@ -48,7 +48,7 @@ scrape_configs:
       - targets: ['fastprom:8000']
 
   - job_name: 'oai_ext_bn'
-    metrics_path: /metrics/ext-bn
+    metrics_path: /metrics/ext-dn
     static_configs:
       - targets: ['fastprom:8000']
 
