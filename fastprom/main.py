@@ -5,7 +5,7 @@ import docker
 app = FastAPI()
 client = docker.from_env()
 
-containers = ["oai-upf", "oai-smf", "oai-amf", "oai-ausf", "oai-udm", "oai-udr", "oai-nssf", "oai-nrf", "ims","oai-next-dn", "openspeedtest"]
+containers = ["oai-upf", "oai-smf", "oai-amf", "oai-ausf", "oai-udm", "oai-udr", "oai-nssf", "oai-nrf", "ims","oai-ext-dn", "openspeedtest"]
 
 registries = {}
 gauges = {}
