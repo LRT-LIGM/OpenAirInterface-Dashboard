@@ -53,3 +53,11 @@ def get_nrf_status():
 @app.get("/core/ims/status")
 def get_ims_status():
     return query_prometheus_status_only("ims")
+
+@app.get("/core/ext-dn/status")
+def get_ext_dn_status():
+    return query_prometheus_status_only("oai-ext-dn")
+
+@app.get("/core/openspeedtest/status")
+def get_openspeedtest_status():
+    return query_prometheus_status_only("openspeedtest")

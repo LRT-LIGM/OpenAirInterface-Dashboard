@@ -5,7 +5,7 @@ import docker
 app = FastAPI()
 client = docker.from_env()
 
-containers = ["oai-upf", "oai-smf", "oai-amf", "oai-ausf", "oai-udm", "oai-udr", "oai-nssf", "oai-nrf", "ims","oai-next-dn"]
+containers = ["oai-upf", "oai-smf", "oai-amf", "oai-ausf", "oai-udm", "oai-udr", "oai-nssf", "oai-nrf", "ims","oai-next-dn", "openspeedtest"]
 
 registries = {}
 gauges = {}
@@ -30,9 +30,10 @@ def update_container_status(container_name):
 
 @app.get("/metrics/{component}")
 def get_metrics(component: str):
-    container_name = f"oai-{component}" if component != "ims" else component
+    container_name = component if component in ["ims", "openspeedtest"] else f"oai-{component}"
     if container_name not in registries:
         return Response(status_code=404, content=f"Unknown component: {component}")
     update_container_status(container_name)
     data = generate_latest(registries[container_name])
     return Response(content=data, media_type=CONTENT_TYPE_LATEST)
+

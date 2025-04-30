@@ -46,3 +46,13 @@ scrape_configs:
     metrics_path: /metrics/ims
     static_configs:
       - targets: ['fastprom:8000']
+
+  - job_name: 'oai-ext-bn'
+    metrics_path: /metrics/ext-bn
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'openspeedtest'
+    metrics_path: /metrics/openspeedtest
+    static_configs:
+      - targets: ['fastprom:8000']
