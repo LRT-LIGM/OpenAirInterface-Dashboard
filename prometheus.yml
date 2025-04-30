@@ -1,0 +1,48 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'oai_upf'
+    metrics_path: /metrics/upf
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'oai_smf'
+    metrics_path: /metrics/smf
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'oai_amf'
+    metrics_path: /metrics/amf
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'oai_ausf'
+    metrics_path: /metrics/ausf
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'oai_udm'
+    metrics_path: /metrics/udm
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'oai_udr'
+    metrics_path: /metrics/udr
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'oai_nssf'
+    metrics_path: /metrics/nssf
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'oai_nrf'
+    metrics_path: /metrics/nrf
+    static_configs:
+      - targets: ['fastprom:8000']
+
+  - job_name: 'ims'
+    metrics_path: /metrics/ims
+    static_configs:
+      - targets: ['fastprom:8000']
