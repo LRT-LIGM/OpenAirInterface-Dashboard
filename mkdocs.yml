@@ -31,6 +31,8 @@ nav:
       - Analysis of competitor : analysis.md
       - Specification : specs.md
       - Intern Roadmap: intern-roadmap.md
+      - Configuration of Monitored Services: configuration.md
+
   - API Reference:
       - Backend API: api/backend.md
 

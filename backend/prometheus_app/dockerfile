@@ -10,14 +10,14 @@ COPY requirements.txt .
 # Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copier le contenu du dossier backend dans /app
-COPY ./fastprom /app
+# Copier le contenu du dossier prometheus_app dans /app
+COPY ./backend/prometheus_app /app
 
 # Exposer le port FastAPI
 EXPOSE 8000
 
 # Lancer le serveur FastAPI
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "core_services_monitoring:app", "--host", "0.0.0.0", "--port", "8000"]
 
 
 #docker build -t oai-backend -f dockerfile .

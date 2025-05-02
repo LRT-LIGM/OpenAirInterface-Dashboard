@@ -1,0 +1,57 @@
+from fastapi import FastAPI, HTTPException
+import requests
+import yaml
+
+app = FastAPI()
+
+PROMETHEUS_URL = "http://prometheus:9090"
+
+with open("config/monitored_services.yml", "r") as f:
+    config = yaml.safe_load(f)
+
+services_map = {entry["name"]: entry["container"] for entry in config["core_services"]}
+
+def query_prometheus_status_only(container_name: str):
+    """
+    Query the Prometheus API to retrieve the status metric for a given container.
+
+    Args:
+        container_name (str): The name of the container to query within Prometheus.
+
+    Returns:
+        dict: A dictionary containing the container's status, for example: {"status": "running"}.
+
+    Raises:
+        HTTPException: If the metric is not found, the query fails, or the result is empty.
+    """
+    try:
+        response = requests.get(
+            f"{PROMETHEUS_URL}/api/v1/query",
+            params={"query": f'oai_container_status{{container="{container_name}"}}'}
+        )
+        data = response.json()
+        if data["status"] != "success" or not data["data"]["result"]:
+            raise ValueError("Metric not found or empty")
+        return {"status": data["data"]["result"][0]["metric"]["status"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/core/{service_name}/status")
+def get_service_status(service_name: str):
+    """
+    Retrieve the status of a core service based on its service name.
+
+    Args:
+        service_name (str): The unique name of the core service to query.
+
+    Returns:
+        dict: A dictionary containing the status of the requested core service.
+
+    Raises:
+        HTTPException: If the service name does not exist in the monitored services
+                       or if an error occurs during the Prometheus query.
+    """
+    if service_name not in services_map:
+        raise HTTPException(status_code=404, detail="Service not found")
+    container = services_map[service_name]
+    return query_prometheus_status_only(container)

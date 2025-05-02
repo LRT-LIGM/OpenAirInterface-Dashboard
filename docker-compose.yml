@@ -3,17 +3,18 @@ version: "3.9"
 # First draft 
 services:
   # ────────────────────────────
-  fastprom:
+  prometheus_app:
     build:
       context: .
-      dockerfile: fastprom/dockerfile
-    container_name: fastprom_app
+      dockerfile: backend/prometheus_app/dockerfile
+    container_name: prometheus_app
     ports:
       - "8000:8000"
     environment:
       - PROMETHEUS_MULTIPROC_DIR=/tmp
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./config:/app/config
       #- ./backend:/app
     depends_on:
       - prometheus
@@ -28,6 +29,7 @@ services:
       - "8001:8000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./config:/app/config
     depends_on:
       - prometheus
 
@@ -38,7 +40,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
 
 #  gnb_monitor:
 #    build:

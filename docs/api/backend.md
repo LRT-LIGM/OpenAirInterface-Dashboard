@@ -2,9 +2,10 @@
 
 ---
 
-:::main
+:::api
 
 ---
 
-:::ws_routes
+:::prometheus_app.core_services_monitoring
+
 ---

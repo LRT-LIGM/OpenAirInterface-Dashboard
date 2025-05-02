@@ -5,54 +5,54 @@ scrape_configs:
   - job_name: 'oai_upf'
     metrics_path: /metrics/upf
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'oai_smf'
     metrics_path: /metrics/smf
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'oai_amf'
     metrics_path: /metrics/amf
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'oai_ausf'
     metrics_path: /metrics/ausf
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'oai_udm'
     metrics_path: /metrics/udm
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'oai_udr'
     metrics_path: /metrics/udr
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'oai_nssf'
     metrics_path: /metrics/nssf
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'oai_nrf'
     metrics_path: /metrics/nrf
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'ims'
     metrics_path: /metrics/ims
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
-  - job_name: 'oai_ext_bn'
+  - job_name: 'oai_ext_dn'
     metrics_path: /metrics/ext-dn
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']
 
   - job_name: 'openspeedtest'
     metrics_path: /metrics/openspeedtest
     static_configs:
-      - targets: ['fastprom:8000']
+      - targets: ['prometheus_app:8000']

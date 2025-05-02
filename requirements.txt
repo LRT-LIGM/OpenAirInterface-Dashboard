@@ -12,3 +12,4 @@ prometheus_client~=0.21.1
 docker~=7.1.0
 requests~=2.32.3
 websockets~=15.0.1
+PyYAML~=6.0.2
