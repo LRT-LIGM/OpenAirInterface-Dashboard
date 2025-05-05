@@ -1,3 +1,9 @@
+# Diagram of Container Status Metrics Collection
+
+![Global overview](img/diagram_api.png)
+
+---
+
 # Configuration of Monitored Services
 
 We have a folder named `config` that contains two YAML files.
@@ -33,3 +39,4 @@ To add a new metric in the `prometheus.yml` file, you need to define :
 - a `targets` list, which contains the address and port of the service exposing the metrics (usually `prometheus_app:8000` for this project).
 
 Each job tells Prometheus what to scrape, where to find it, and how to label the collected data.
+
