@@ -1,13 +1,19 @@
 from fastapi import FastAPI, HTTPException
 import requests
 import yaml
+import os
 
 app = FastAPI()
 
-PROMETHEUS_URL = "http://prometheus:9090"
+PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 
-with open("config/monitored_services.yml", "r") as f:
-    config = yaml.safe_load(f)
+try:
+    with open("config/monitored_services.yml", "r") as f:
+        config = yaml.safe_load(f)
+except Exception as e:
+    print(f"Error while loading the YAML file: {e}")
+    config = {}
+
 
 services_map = {entry["name"]: entry["container"] for entry in config["core_services"]}
 
@@ -29,12 +35,20 @@ def query_prometheus_status_only(container_name: str):
             f"{PROMETHEUS_URL}/api/v1/query",
             params={"query": f'oai_container_status{{container="{container_name}"}}'}
         )
+        response.raise_for_status()
         data = response.json()
+
         if data["status"] != "success" or not data["data"]["result"]:
             raise ValueError("Metric not found or empty")
+
         return {"status": data["data"]["result"][0]["metric"]["status"]}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+    except requests.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Bad Gateway: Prometheus unreachable. {e}")
+
+    except (KeyError, IndexError, ValueError) as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: Invalid Prometheus response. {e}")
+
 
 @app.get("/core/{service_name}/status")
 def get_service_status(service_name: str):

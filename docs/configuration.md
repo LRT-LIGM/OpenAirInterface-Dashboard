@@ -19,7 +19,7 @@ We have a folder named `config` that contains two YAML files.
 - The `prometheus.yml` file defines Prometheus scrape jobs. It configures the routes that Prometheus will query in order to collect the metrics exposed by `core_services_monitoring.py`.
 
 - The `monitored_services.yml` file is also used by the `api.py` script, which queries the metrics exposed by `core_services_monitoring.py` and provides a simplified API that returns only the status of each service at `/core/{name}/status`.
-
+    
 ---
 
 # How to add a metrics
@@ -36,7 +36,7 @@ To add a new metric in the `prometheus.yml` file, you need to define :
 
 - a `metrics_path`, which corresponds to the HTTP route where the metrics are exposed.
 
-- a `targets` list, which contains the address and port of the service exposing the metrics (usually `prometheus_app:8000` for this project).
+- a `targets` list, which contains the address and port of the service exposing the metrics (usually `core_status_api:8000` for this project).
 
 Each job tells Prometheus what to scrape, where to find it, and how to label the collected data.
 

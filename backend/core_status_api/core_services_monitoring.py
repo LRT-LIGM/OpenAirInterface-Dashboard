@@ -6,8 +6,12 @@ import yaml
 app = FastAPI()
 client = docker.from_env()
 
-with open("config/monitored_services.yml", "r") as f:
-    config = yaml.safe_load(f)
+try:
+    with open("config/monitored_services.yml", "r") as f:
+        config = yaml.safe_load(f)
+except Exception as e:
+    print(f"Error while loading the YAML file: {e}")
+    config = {}
 
 services_map = {entry["name"]: entry["container"] for entry in config["core_services"]}
 
@@ -46,6 +50,7 @@ def update_container_status(name):
         status = "not_found"
     except Exception:
         status = "error"
+
     gauge.clear()
     gauge.labels(container=container_name, status=status).set(1)
 
@@ -66,6 +71,7 @@ def get_metrics(component: str):
     """
     if component not in services_map:
         return Response(status_code=404, content=f"Unknown component: {component}")
+
     update_container_status(component)
     data = generate_latest(registries[component])
     return Response(content=data, media_type=CONTENT_TYPE_LATEST)

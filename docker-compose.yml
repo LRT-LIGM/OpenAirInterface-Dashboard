@@ -3,11 +3,11 @@ version: "3.9"
 # First draft 
 services:
   # ────────────────────────────
-  prometheus_app:
+  core_status_api:
     build:
       context: .
-      dockerfile: backend/prometheus_app/dockerfile
-    container_name: prometheus_app
+      dockerfile: backend/core_status_api/dockerfile
+    container_name: core_status_api
     ports:
       - "8000:8000"
     environment:
@@ -18,6 +18,8 @@ services:
       #- ./backend:/app
     depends_on:
       - prometheus
+    env_file:
+      - .env
 
 
   fastapiapp:
@@ -32,6 +34,8 @@ services:
       - ./config:/app/config
     depends_on:
       - prometheus
+    env_file:
+      - .env
 
 
   prometheus:
