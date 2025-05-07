@@ -6,6 +6,6 @@
 
 ---
 
-:::prometheus_app.core_services_monitoring
+:::core_status_api.core_services_monitoring
 
 ---
