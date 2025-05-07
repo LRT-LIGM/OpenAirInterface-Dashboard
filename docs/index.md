@@ -11,7 +11,7 @@ Welcome to the official documentation site for the **OAI Dashboard** — a web-b
 
 ## Project overview 
 
-![Project Overview](architecture_system-1.png)
+![Project Overview](img/architecture_system-1.png)
 
 [Analysis link](analysis.md)
 

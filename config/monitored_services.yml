@@ -1,0 +1,23 @@
+core_services:
+  - name: upf
+    container: oai-upf
+  - name: smf
+    container: oai-smf
+  - name: amf
+    container: oai-amf
+  - name: ausf
+    container: oai-ausf
+  - name: udm
+    container: oai-udm
+  - name: udr
+    container: oai-udr
+  - name: nssf
+    container: oai-nssf
+  - name: nrf
+    container: oai-nrf
+  - name: ims
+    container: ims
+  - name: ext-dn
+    container: oai-ext-dn
+  - name: openspeedtest
+    container: openspeedtest

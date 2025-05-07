@@ -2,9 +2,10 @@
 
 ---
 
-:::main
+:::api
 
 ---
 
-:::ws_routes
+:::core_status_api.core_services_monitoring
+
 ---

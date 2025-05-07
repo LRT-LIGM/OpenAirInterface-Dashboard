@@ -3,14 +3,14 @@
 ## General Overview  
 The OAIBOX interface allows real-time visualization, machine control, network flow analysis, and the display of radio metrics in a standalone 5G environment.
 
-![Global overview](aperçu.png)
+![Global overview](img/aperçu.png)
 
 ---
 
 ## Machine Selection  
 Allows the user to select which OAIBOX instance to display and control, if there are multiple.
 
-![Machine selection](selection.png)
+![Machine selection](img/selection.png)
 
 ---
 
@@ -18,14 +18,14 @@ Allows the user to select which OAIBOX instance to display and control, if there
 Displays the machine name as well as its status (online or offline).  
 It also shows the client identifier, machine identifier, serial number, and IP address, along with a **Reboot** button to restart the machine.
 
-![Machine info](info.png)
+![Machine info](img/info.png)
 
 ---
 
 ## Network Visualization  
 Real-time graphical display of components and their internal connections.
 
-![Network](Network.png)
+![Network](img/Network.png)
 
 - Represented components: `IMS`, `OAI-EXT-DN`, `UPF`, `NG-RAN`, `AMF`, `SMF`, `AUSF`, `NRF`, `UDR`, `UDM`, `O-RU`, `Internet`  
 - Status (healthy / stopped) and IP address of each component
@@ -35,7 +35,7 @@ Real-time graphical display of components and their internal connections.
 ## Machine Control  
 Action buttons for managing the selected machine.
 
-![Machine control](controle.png)
+![Machine control](img/controle.png)
 
 - **CN5G** (5G Core Network):  
     - A **Start** button allows you to start the CN5G. Once the core network is launched, this button is replaced by **Restart** and **Stop**.  
@@ -51,7 +51,7 @@ Action buttons for managing the selected machine.
 ## Message Flow  
 Tab dedicated to the analysis of network exchanges.
 
-![Message flow](messageflow.png)
+![Message flow](img/messageflow.png)
 
 Uses Wireshark to display the time, protocol used, and a short summary of the message.
 
@@ -60,7 +60,7 @@ Uses Wireshark to display the time, protocol used, and a short summary of the me
 ## Network Status  
 Real-time display of network activity.
 
-![Network status](status.png)
+![Network status](img/status.png)
 
 - Number of base stations (gNBs)  
 - Number of user equipments (UEs)  
@@ -72,8 +72,8 @@ Real-time display of network activity.
 ## Displayed Radio Metrics  
 Technical indicators for evaluating signal quality.
 
-![Metrics](donnees.png)  
-![Bitrate](Bitrate.png)
+![Metrics](img/donnees.png)  
+![Bitrate](img/Bitrate.png)
 
 - **RSSI**: Received Signal Strength Indicator  
 - **RSRP**: Reference Signal Received Power  
