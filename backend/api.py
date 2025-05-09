@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 import requests
 import yaml
 import os
+import subprocess
 
 app = FastAPI()
 
@@ -49,6 +50,71 @@ def query_prometheus_status_only(container_name: str):
     except (KeyError, IndexError, ValueError) as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: Invalid Prometheus response. {e}")
 
+@app.post("/core/start")
+def start_core_network():
+    """
+    Start the 5G core network using docker-compose.
+
+    Returns:
+        dict: Contains the result of the subprocess execution including stdout, stderr, and return code.
+    """
+    try:
+        result = subprocess.run(
+            ["docker-compose", "-f", "/home/user/oai-cn5g/docker-compose.yaml", "up", "-d"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+
+        return {
+            "message": "Core network started",
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "returncode": result.returncode
+        }
+    except subprocess.CalledProcessError as e:
+        return {
+            "error": "Failed to start core network",
+            "stdout": e.stdout,
+            "stderr": e.stderr,
+            "returncode": e.returncode
+        }
+    except Exception as e:
+        return {"error": "Unexpected error", "detail": str(e)}
+
+
+@app.post("/core/stop")
+def stop_core_network():
+    """
+    Stop the 5G core network using docker-compose.
+
+    Returns:
+        dict: Contains the result of the subprocess execution including stdout, stderr, and return code.
+    """
+    try:
+        result = subprocess.run(
+            ["docker-compose", "-f", "/home/user/oai-cn5g/docker-compose.yaml", "down"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+
+        return {
+            "message": "Core network stopped",
+            "stdout": result.stdout.decode('utf-8'),
+            "stderr": result.stderr.decode('utf-8'),
+            "returncode": result.returncode
+        }
+    except subprocess.CalledProcessError as e:
+        return {
+            "error": "Failed to stop core network",
+            "stdout": e.stdout.decode('utf-8'),
+            "stderr": e.stderr.decode('utf-8'),
+            "returncode": e.returncode
+        }
+    except Exception as e:
+        return {"error": "Unexpected error", "detail": str(e)}
+
+
+
 
 @app.get("/core/{service_name}/status")
 def get_service_status(service_name: str):
@@ -69,3 +135,25 @@ def get_service_status(service_name: str):
         raise HTTPException(status_code=404, detail="Service not found")
     container = services_map[service_name]
     return query_prometheus_status_only(container)
+
+
+@app.post("/core/start")
+def start_network():
+    """
+    Endpoint to start the core network using Docker Compose.
+
+    Returns:
+        dict: A dictionary with a success message when the network is started.
+    """
+    return start_core_network()
+
+#essayer d'enlever les post ici pour voir si ca marche encore
+@app.post("/core/stop")
+def stop_network():
+    """
+    Endpoint to stop the core network using Docker Compose.
+
+    Returns:
+        dict: A dictionary with a success message when the network is stopped.
+    """
+    return stop_core_network()

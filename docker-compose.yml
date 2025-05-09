@@ -30,6 +30,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config:/app/config
+      - /home/user/oai-cn5g:/home/user/oai-cn5g
     depends_on:
       - prometheus
 
