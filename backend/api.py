@@ -137,7 +137,6 @@ def get_service_status(service_name: str):
     return query_prometheus_status_only(container)
 
 
-@app.post("/core/start")
 def start_network():
     """
     Endpoint to start the core network using Docker Compose.
@@ -147,8 +146,7 @@ def start_network():
     """
     return start_core_network()
 
-#essayer d'enlever les post ici pour voir si ca marche encore
-@app.post("/core/stop")
+
 def stop_network():
     """
     Endpoint to stop the core network using Docker Compose.
