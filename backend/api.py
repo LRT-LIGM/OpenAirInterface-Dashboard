@@ -3,6 +3,7 @@ import requests
 import yaml
 import os
 import subprocess
+import time
 
 app = FastAPI()
 
@@ -113,6 +114,36 @@ def stop_core_network():
     except Exception as e:
         return {"error": "Unexpected error", "detail": str(e)}
 
+@app.post("/core/restart")
+def restart_core_network():
+    """
+    Restart the 5G core network using docker-compose.
+
+    Returns:
+        dict: Contains the result of the subprocess execution including stdout, stderr, and return code.
+    """
+    try:
+        result = subprocess.run(
+            ["docker-compose", "-f", "/home/user/oai-cn5g/docker-compose.yaml", "restart"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+
+        return {
+            "message": "Core network restarted",
+            "stdout": result.stdout.decode('utf-8'),
+            "stderr": result.stderr.decode('utf-8'),
+            "returncode": result.returncode
+        }
+    except subprocess.CalledProcessError as e:
+        return {
+            "error": "Failed to restart core network",
+            "stdout": e.stdout.decode('utf-8'),
+            "stderr": e.stderr.decode('utf-8'),
+            "returncode": e.returncode
+        }
+    except Exception as e:
+        return {"error": "Unexpected error", "detail": str(e)}
 
 
 
@@ -136,22 +167,3 @@ def get_service_status(service_name: str):
     container = services_map[service_name]
     return query_prometheus_status_only(container)
 
-
-def start_network():
-    """
-    Endpoint to start the core network using Docker Compose.
-
-    Returns:
-        dict: A dictionary with a success message when the network is started.
-    """
-    return start_core_network()
-
-
-def stop_network():
-    """
-    Endpoint to stop the core network using Docker Compose.
-
-    Returns:
-        dict: A dictionary with a success message when the network is stopped.
-    """
-    return stop_core_network()
