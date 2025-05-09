@@ -114,36 +114,28 @@ def stop_core_network():
     except Exception as e:
         return {"error": "Unexpected error", "detail": str(e)}
 
+import time
+
 @app.post("/core/restart")
 def restart_core_network():
     """
     Restart the 5G core network using docker-compose.
 
-    Returns:
-        dict: Contains the result of the subprocess execution including stdout, stderr, and return code.
-    """
-    try:
-        result = subprocess.run(
-            ["docker-compose", "-f", "/home/user/oai-cn5g/docker-compose.yaml", "restart"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
+    This function stops the core network, waits briefly, and then starts it again.
 
-        return {
-            "message": "Core network restarted",
-            "stdout": result.stdout.decode('utf-8'),
-            "stderr": result.stderr.decode('utf-8'),
-            "returncode": result.returncode
-        }
-    except subprocess.CalledProcessError as e:
-        return {
-            "error": "Failed to restart core network",
-            "stdout": e.stdout.decode('utf-8'),
-            "stderr": e.stderr.decode('utf-8'),
-            "returncode": e.returncode
-        }
-    except Exception as e:
-        return {"error": "Unexpected error", "detail": str(e)}
+    Returns:
+        dict: Contains the combined results of the stop and start operations.
+    """
+    stop_result = stop_core_network()
+    time.sleep(4)
+    start_result = start_core_network()
+
+    return {
+        "message": "Core network restarted",
+        "stop_result": stop_result,
+        "start_result": start_result
+    }
+
 
 
 
