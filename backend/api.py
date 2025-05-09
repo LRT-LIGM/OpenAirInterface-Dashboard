@@ -8,6 +8,7 @@ import time
 app = FastAPI()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
+DOCKER_COMPOSE_PATH = os.getenv("DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -61,7 +62,7 @@ def start_core_network():
     """
     try:
         result = subprocess.run(
-            ["docker-compose", "-f", "/home/user/oai-cn5g/docker-compose.yaml", "up", "-d"],
+            ["docker-compose", "-f", DOCKER_COMPOSE_PATH, "up", "-d"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -73,14 +74,18 @@ def start_core_network():
             "returncode": result.returncode
         }
     except subprocess.CalledProcessError as e:
-        return {
-            "error": "Failed to start core network",
-            "stdout": e.stdout,
-            "stderr": e.stderr,
-            "returncode": e.returncode
-        }
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to start the core network: {e.stderr.decode('utf-8')}",
+            headers={"X-Error": "Subprocess Error"}
+        )
+
     except Exception as e:
-        return {"error": "Unexpected error", "detail": str(e)}
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error: {str(e)}",
+            headers={"X-Error": "Unexpected Error"}
+        )
 
 
 @app.post("/core/stop")
@@ -93,7 +98,7 @@ def stop_core_network():
     """
     try:
         result = subprocess.run(
-            ["docker-compose", "-f", "/home/user/oai-cn5g/docker-compose.yaml", "down"],
+            ["docker-compose", "-f", DOCKER_COMPOSE_PATH, "down"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -105,16 +110,18 @@ def stop_core_network():
             "returncode": result.returncode
         }
     except subprocess.CalledProcessError as e:
-        return {
-            "error": "Failed to stop core network",
-            "stdout": e.stdout.decode('utf-8'),
-            "stderr": e.stderr.decode('utf-8'),
-            "returncode": e.returncode
-        }
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to stop the core network: {e.stderr.decode('utf-8')}",
+            headers={"X-Error": "Subprocess Error"}
+        )
     except Exception as e:
-        return {"error": "Unexpected error", "detail": str(e)}
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error: {str(e)}",
+            headers={"X-Error": "Unexpected Error"}
+        )
 
-import time
 
 @app.post("/core/restart")
 def restart_core_network():
