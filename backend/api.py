@@ -3,8 +3,11 @@ import requests
 import yaml
 import os
 import subprocess
+from fastapi.responses import FileResponse
+from tshark.capture_manager import CaptureManager
 
 app = FastAPI()
+manager = CaptureManager()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 
@@ -155,3 +158,31 @@ def stop_network():
         dict: A dictionary with a success message when the network is stopped.
     """
     return stop_core_network()
+
+
+
+@app.post("/wireshark/start")
+def start(interface: str = "eth0"):
+    try:
+        file_path = manager.start_capture(interface)
+        return {"message": f"Capture started on {interface}", "file": file_path}
+    except RuntimeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/wireshark/stop")
+def stop():
+    try:
+        file_path = manager.stop_capture()
+        return {"message": "Capture stopped", "file": file_path}
+    except RuntimeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/wireshark/download")
+def download():
+    if not manager.capture_file or not os.path.exists(manager.capture_file):
+        raise HTTPException(status_code=404, detail="No capture file available")
+    return FileResponse(manager.capture_file, media_type="application/octet-stream", filename="capture.pcap")

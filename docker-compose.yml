@@ -30,6 +30,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config:/app/config
       - /home/user/oai-cn5g:/home/user/oai-cn5g
+      - ./backend/tshark/captures:/app/tshark/captures
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     depends_on:
       - prometheus
 
