@@ -16,7 +16,6 @@ except Exception as e:
     print(f"Error while loading the YAML file: {e}")
     config = {}
 
-
 services_map = {entry["name"]: entry["container"] for entry in config["core_services"]}
 
 def query_prometheus_status_only(container_name: str):
@@ -51,24 +50,25 @@ def query_prometheus_status_only(container_name: str):
     except (KeyError, IndexError, ValueError) as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: Invalid Prometheus response. {e}")
 
+
 @app.post("/core/start")
 def start_core_network():
     """
-    Start the 5G core network using docker-compose.
+    Start the 5G core network using `docker compose`.
 
     This endpoint launches the 5G core services defined in the Docker Compose file.
-    It uses a subprocess to run the `docker-compose up -d` command, which starts
+    It uses a subprocess to run the `docker compose up -d` command, which starts
     the containers in detached mode.
 
     Returns:
         dict: A dictionary containing:
             - message (str): A confirmation message if the core starts successfully.
-            - stdout (str): Standard output from the docker-compose command.
-            - stderr (str): Standard error output from the docker-compose command.
+            - stdout (str): Standard output from the docker compose command.
+            - stderr (str): Standard error output from the docker compose command.
             - returncode (int): The return code from the subprocess execution.
 
     Raises:
-        HTTPException: If the subprocess fails to execute the docker-compose command
+        HTTPException: If the subprocess fails to execute the docker compose command
                        or an unexpected error occurs.
     """
     try:
@@ -90,7 +90,6 @@ def start_core_network():
             detail=f"Failed to start the core network: {e.stderr.decode('utf-8')}",
             headers={"X-Error": "Subprocess Error"}
         )
-
     except Exception as e:
         raise HTTPException(
             status_code=500,
@@ -102,21 +101,21 @@ def start_core_network():
 @app.post("/core/stop")
 def stop_core_network():
     """
-    Stop the 5G core network using docker-compose.
+    Stop the 5G core network using `docker compose`.
 
     This endpoint stops all running 5G core services by executing the
-    `docker-compose down` command using a subprocess. It stops and removes
+    `docker compose down` command using a subprocess. It stops and removes
     the containers, networks, and other resources defined in the Docker Compose file.
 
     Returns:
         dict: A dictionary containing:
             - message (str): A confirmation message if the core is stopped successfully.
-            - stdout (str): Standard output from the docker-compose command.
-            - stderr (str): Standard error output from the docker-compose command.
+            - stdout (str): Standard output from the docker compose command.
+            - stderr (str): Standard error output from the docker compose command.
             - returncode (int): The return code from the subprocess execution.
 
     Raises:
-        HTTPException: If the subprocess fails to execute the docker-compose command
+        HTTPException: If the subprocess fails to execute the docker compose command
                        or an unexpected error occurs during the process.
     """
     try:
@@ -149,17 +148,21 @@ def stop_core_network():
 @app.post("/core/restart")
 def restart_core_network():
     """
-    Restart the 5G core network using `docker compose restart`.
+    Restart the 5G core network using `docker compose`.
 
     This endpoint restarts the 5G core network by invoking the `docker compose restart`
-    command with the specified compose file.
+    command with the specified Compose file, which stops and then restarts all services.
 
     Returns:
-        dict: A dictionary containing the result of the restart subprocess,
-              including stdout, stderr, and return code.
+        dict: A dictionary containing:
+            - message (str): A confirmation message if the core is restarted successfully.
+            - stdout (str): Standard output from the docker compose command.
+            - stderr (str): Standard error output from the docker compose command.
+            - returncode (int): The return code from the subprocess execution.
 
     Raises:
-        HTTPException: If an error occurs during the subprocess execution.
+        HTTPException: If the subprocess fails to execute the docker compose command
+                       or if an unexpected error occurs.
     """
     try:
         result = subprocess.run(
@@ -193,12 +196,13 @@ def restart_core_network():
         )
 
 
-
-
 @app.get("/core/{service_name}/status")
 def get_service_status(service_name: str):
     """
     Retrieve the status of a core service based on its service name.
+
+    This endpoint maps the service name to a container name defined in the configuration
+    file and queries Prometheus for its current runtime status.
 
     Args:
         service_name (str): The unique name of the core service to query.
@@ -214,4 +218,3 @@ def get_service_status(service_name: str):
         raise HTTPException(status_code=404, detail="Service not found")
     container = services_map[service_name]
     return query_prometheus_status_only(container)
-
