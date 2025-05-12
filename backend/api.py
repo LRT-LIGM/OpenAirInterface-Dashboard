@@ -3,7 +3,6 @@ import requests
 import yaml
 import os
 import subprocess
-import time
 
 app = FastAPI()
 
@@ -74,7 +73,7 @@ def start_core_network():
     """
     try:
         result = subprocess.run(
-            ["docker-compose", "-f", DOCKER_COMPOSE_PATH, "up", "-d"],
+            ["docker", "compose", "-f", DOCKER_COMPOSE_PATH, "up", "-d"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -122,7 +121,7 @@ def stop_core_network():
     """
     try:
         result = subprocess.run(
-            ["docker-compose", "-f", DOCKER_COMPOSE_PATH, "down"],
+            ["docker", "compose", "-f", DOCKER_COMPOSE_PATH, "down"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -150,48 +149,41 @@ def stop_core_network():
 @app.post("/core/restart")
 def restart_core_network():
     """
-    Restart the 5G core network using docker-compose.
+    Restart the 5G core network using `docker compose restart`.
 
-    This endpoint first stops the currently running 5G core network and then
-    restarts it after a short delay. It combines the results of both operations.
+    This endpoint restarts the 5G core network by invoking the `docker compose restart`
+    command with the specified compose file.
 
     Returns:
-        dict: A dictionary containing the result of the stop and start subprocesses,
-              including their stdout, stderr, and return codes.
+        dict: A dictionary containing the result of the restart subprocess,
+              including stdout, stderr, and return code.
 
     Raises:
-        HTTPException: If an error occurs during either the stop or start subprocess,
-                       or if an unexpected exception arises.
+        HTTPException: If an error occurs during the subprocess execution.
     """
     try:
-        stop_result = stop_core_network()
+        result = subprocess.run(
+            ["docker", "compose", "-f", DOCKER_COMPOSE_PATH, "restart"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
 
-        if stop_result["returncode"] != 0:
+        stdout = result.stdout.decode("utf-8")
+        stderr = result.stderr.decode("utf-8")
+
+        if result.returncode != 0:
             raise HTTPException(
                 status_code=500,
-                detail=f"Failed to stop the core network before restarting: {stop_result['stderr']}",
-                headers={"X-Error": "Core Stop Error"}
-            )
-
-        time.sleep(4)
-
-        start_result = start_core_network()
-
-        if start_result["returncode"] != 0:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to start the core network after stopping: {start_result['stderr']}",
-                headers={"X-Error": "Core Start Error"}
+                detail=f"Failed to restart the core network: {stderr}",
+                headers={"X-Error": "Core Restart Error"}
             )
 
         return {
             "message": "Core network restarted successfully",
-            "stop_result": stop_result,
-            "start_result": start_result
+            "stdout": stdout,
+            "stderr": stderr,
+            "returncode": result.returncode
         }
-
-    except HTTPException as http_err:
-        raise http_err
 
     except Exception as e:
         raise HTTPException(
