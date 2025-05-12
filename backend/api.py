@@ -7,7 +7,7 @@ import subprocess
 app = FastAPI()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
-DOCKER_COMPOSE_PATH = os.getenv("DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
+FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -73,7 +73,7 @@ def start_core_network():
     """
     try:
         result = subprocess.run(
-            ["docker", "compose", "-f", DOCKER_COMPOSE_PATH, "up", "-d"],
+            ["docker", "compose", "-f", FIVEG_CORE_DOCKER_COMPOSE_PATH, "up", "-d"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -120,7 +120,7 @@ def stop_core_network():
     """
     try:
         result = subprocess.run(
-            ["docker", "compose", "-f", DOCKER_COMPOSE_PATH, "down"],
+            ["docker", "compose", "-f", FIVEG_CORE_DOCKER_COMPOSE_PATH, "down"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -166,7 +166,7 @@ def restart_core_network():
     """
     try:
         result = subprocess.run(
-            ["docker", "compose", "-f", DOCKER_COMPOSE_PATH, "restart"],
+            ["docker", "compose", "-f", FIVEG_CORE_DOCKER_COMPOSE_PATH, "restart"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
