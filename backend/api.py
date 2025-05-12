@@ -57,8 +57,20 @@ def start_core_network():
     """
     Start the 5G core network using docker-compose.
 
+    This endpoint launches the 5G core services defined in the Docker Compose file.
+    It uses a subprocess to run the `docker-compose up -d` command, which starts
+    the containers in detached mode.
+
     Returns:
-        dict: Contains the result of the subprocess execution including stdout, stderr, and return code.
+        dict: A dictionary containing:
+            - message (str): A confirmation message if the core starts successfully.
+            - stdout (str): Standard output from the docker-compose command.
+            - stderr (str): Standard error output from the docker-compose command.
+            - returncode (int): The return code from the subprocess execution.
+
+    Raises:
+        HTTPException: If the subprocess fails to execute the docker-compose command
+                       or an unexpected error occurs.
     """
     try:
         result = subprocess.run(
@@ -69,8 +81,8 @@ def start_core_network():
 
         return {
             "message": "Core network started",
-            "stdout": result.stdout,
-            "stderr": result.stderr,
+            "stdout": result.stdout.decode('utf-8'),
+            "stderr": result.stderr.decode('utf-8'),
             "returncode": result.returncode
         }
     except subprocess.CalledProcessError as e:
@@ -93,8 +105,20 @@ def stop_core_network():
     """
     Stop the 5G core network using docker-compose.
 
+    This endpoint stops all running 5G core services by executing the
+    `docker-compose down` command using a subprocess. It stops and removes
+    the containers, networks, and other resources defined in the Docker Compose file.
+
     Returns:
-        dict: Contains the result of the subprocess execution including stdout, stderr, and return code.
+        dict: A dictionary containing:
+            - message (str): A confirmation message if the core is stopped successfully.
+            - stdout (str): Standard output from the docker-compose command.
+            - stderr (str): Standard error output from the docker-compose command.
+            - returncode (int): The return code from the subprocess execution.
+
+    Raises:
+        HTTPException: If the subprocess fails to execute the docker-compose command
+                       or an unexpected error occurs during the process.
     """
     try:
         result = subprocess.run(
@@ -128,20 +152,53 @@ def restart_core_network():
     """
     Restart the 5G core network using docker-compose.
 
-    This function stops the core network, waits briefly, and then starts it again.
+    This endpoint first stops the currently running 5G core network and then
+    restarts it after a short delay. It combines the results of both operations.
 
     Returns:
-        dict: Contains the combined results of the stop and start operations.
-    """
-    stop_result = stop_core_network()
-    time.sleep(4)
-    start_result = start_core_network()
+        dict: A dictionary containing the result of the stop and start subprocesses,
+              including their stdout, stderr, and return codes.
 
-    return {
-        "message": "Core network restarted",
-        "stop_result": stop_result,
-        "start_result": start_result
-    }
+    Raises:
+        HTTPException: If an error occurs during either the stop or start subprocess,
+                       or if an unexpected exception arises.
+    """
+    try:
+        stop_result = stop_core_network()
+
+        if stop_result["returncode"] != 0:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to stop the core network before restarting: {stop_result['stderr']}",
+                headers={"X-Error": "Core Stop Error"}
+            )
+
+        time.sleep(4)
+
+        start_result = start_core_network()
+
+        if start_result["returncode"] != 0:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to start the core network after stopping: {start_result['stderr']}",
+                headers={"X-Error": "Core Start Error"}
+            )
+
+        return {
+            "message": "Core network restarted successfully",
+            "stop_result": stop_result,
+            "start_result": start_result
+        }
+
+    except HTTPException as http_err:
+        raise http_err
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error during restart: {str(e)}",
+            headers={"X-Error": "Unexpected Error"}
+        )
 
 
 
