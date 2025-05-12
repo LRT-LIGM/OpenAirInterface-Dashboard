@@ -32,6 +32,7 @@ nav:
       - Specification : specs.md
       - Intern Roadmap: intern-roadmap.md
       - Configuration of Monitored Services: configuration.md
+      - Installation Process: installation-process.md
 
   - API Reference:
       - Backend API: api/backend.md
