@@ -10,8 +10,6 @@ services:
     container_name: core_status_api
     ports:
       - "8000:8000"
-    environment:
-      - PROMETHEUS_URL=http://prometheus:9090
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config:/app/config
@@ -36,6 +34,10 @@ services:
       - NET_RAW
     depends_on:
       - prometheus
+    environment:
+      - PROMETHEUS_URL=http://prometheus:9090
+      - FIVEG_CORE_DOCKER_COMPOSE_PATH =/home/user/oai-cn5g/docker-compose.yaml
+
 
 
   prometheus:

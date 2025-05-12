@@ -10,6 +10,7 @@ app = FastAPI()
 manager = CaptureManager()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
+FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -17,7 +18,6 @@ try:
 except Exception as e:
     print(f"Error while loading the YAML file: {e}")
     config = {}
-
 
 services_map = {entry["name"]: entry["container"] for entry in config["core_services"]}
 
@@ -53,49 +53,77 @@ def query_prometheus_status_only(container_name: str):
     except (KeyError, IndexError, ValueError) as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: Invalid Prometheus response. {e}")
 
+
 @app.post("/core/start")
 def start_core_network():
     """
-    Start the 5G core network using docker-compose.
+    Start the 5G core network using `docker compose`.
+
+    This endpoint launches the 5G core services defined in the Docker Compose file.
+    It uses a subprocess to run the `docker compose up -d` command, which starts
+    the containers in detached mode.
 
     Returns:
-        dict: Contains the result of the subprocess execution including stdout, stderr, and return code.
+        dict: A dictionary containing:
+            - message (str): A confirmation message if the core starts successfully.
+            - stdout (str): Standard output from the docker compose command.
+            - stderr (str): Standard error output from the docker compose command.
+            - returncode (int): The return code from the subprocess execution.
+
+    Raises:
+        HTTPException: If the subprocess fails to execute the docker compose command
+                       or an unexpected error occurs.
     """
     try:
         result = subprocess.run(
-            ["docker-compose", "-f", "/home/user/oai-cn5g/docker-compose.yaml", "up", "-d"],
+            ["docker", "compose", "-f", FIVEG_CORE_DOCKER_COMPOSE_PATH, "up", "-d"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
 
         return {
             "message": "Core network started",
-            "stdout": result.stdout,
-            "stderr": result.stderr,
+            "stdout": result.stdout.decode('utf-8'),
+            "stderr": result.stderr.decode('utf-8'),
             "returncode": result.returncode
         }
     except subprocess.CalledProcessError as e:
-        return {
-            "error": "Failed to start core network",
-            "stdout": e.stdout,
-            "stderr": e.stderr,
-            "returncode": e.returncode
-        }
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to start the core network: {e.stderr.decode('utf-8')}",
+            headers={"X-Error": "Subprocess Error"}
+        )
     except Exception as e:
-        return {"error": "Unexpected error", "detail": str(e)}
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error: {str(e)}",
+            headers={"X-Error": "Unexpected Error"}
+        )
 
 
 @app.post("/core/stop")
 def stop_core_network():
     """
-    Stop the 5G core network using docker-compose.
+    Stop the 5G core network using `docker compose`.
+
+    This endpoint stops all running 5G core services by executing the
+    `docker compose down` command using a subprocess. It stops and removes
+    the containers, networks, and other resources defined in the Docker Compose file.
 
     Returns:
-        dict: Contains the result of the subprocess execution including stdout, stderr, and return code.
+        dict: A dictionary containing:
+            - message (str): A confirmation message if the core is stopped successfully.
+            - stdout (str): Standard output from the docker compose command.
+            - stderr (str): Standard error output from the docker compose command.
+            - returncode (int): The return code from the subprocess execution.
+
+    Raises:
+        HTTPException: If the subprocess fails to execute the docker compose command
+                       or an unexpected error occurs during the process.
     """
     try:
         result = subprocess.run(
-            ["docker-compose", "-f", "/home/user/oai-cn5g/docker-compose.yaml", "down"],
+            ["docker", "compose", "-f", FIVEG_CORE_DOCKER_COMPOSE_PATH, "down"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -107,22 +135,77 @@ def stop_core_network():
             "returncode": result.returncode
         }
     except subprocess.CalledProcessError as e:
-        return {
-            "error": "Failed to stop core network",
-            "stdout": e.stdout.decode('utf-8'),
-            "stderr": e.stderr.decode('utf-8'),
-            "returncode": e.returncode
-        }
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to stop the core network: {e.stderr.decode('utf-8')}",
+            headers={"X-Error": "Subprocess Error"}
+        )
     except Exception as e:
-        return {"error": "Unexpected error", "detail": str(e)}
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error: {str(e)}",
+            headers={"X-Error": "Unexpected Error"}
+        )
 
 
+@app.post("/core/restart")
+def restart_core_network():
+    """
+    Restart the 5G core network using `docker compose`.
+
+    This endpoint restarts the 5G core network by invoking the `docker compose restart`
+    command with the specified Compose file, which stops and then restarts all services.
+
+    Returns:
+        dict: A dictionary containing:
+            - message (str): A confirmation message if the core is restarted successfully.
+            - stdout (str): Standard output from the docker compose command.
+            - stderr (str): Standard error output from the docker compose command.
+            - returncode (int): The return code from the subprocess execution.
+
+    Raises:
+        HTTPException: If the subprocess fails to execute the docker compose command
+                       or if an unexpected error occurs.
+    """
+    try:
+        result = subprocess.run(
+            ["docker", "compose", "-f", FIVEG_CORE_DOCKER_COMPOSE_PATH, "restart"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+
+        stdout = result.stdout.decode("utf-8")
+        stderr = result.stderr.decode("utf-8")
+
+        if result.returncode != 0:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to restart the core network: {stderr}",
+                headers={"X-Error": "Core Restart Error"}
+            )
+
+        return {
+            "message": "Core network restarted successfully",
+            "stdout": stdout,
+            "stderr": stderr,
+            "returncode": result.returncode
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error during restart: {str(e)}",
+            headers={"X-Error": "Unexpected Error"}
+        )
 
 
 @app.get("/core/{service_name}/status")
 def get_service_status(service_name: str):
     """
     Retrieve the status of a core service based on its service name.
+
+    This endpoint maps the service name to a container name defined in the configuration
+    file and queries Prometheus for its current runtime status.
 
     Args:
         service_name (str): The unique name of the core service to query.
@@ -138,81 +221,3 @@ def get_service_status(service_name: str):
         raise HTTPException(status_code=404, detail="Service not found")
     container = services_map[service_name]
     return query_prometheus_status_only(container)
-
-
-def start_network():
-    """
-    Endpoint to start the core network using Docker Compose.
-
-    Returns:
-        dict: A dictionary with a success message when the network is started.
-    """
-    return start_core_network()
-
-
-def stop_network():
-    """
-    Endpoint to stop the core network using Docker Compose.
-
-    Returns:
-        dict: A dictionary with a success message when the network is stopped.
-    """
-    return stop_core_network()
-
-
-
-@app.post("/wireshark/start")
-def start(interface: str = "eth0"):
-    """
-    Start a network traffic capture using Tshark on a specified interface.
-
-    Args:
-        interface (str): The network interface to capture traffic from (default is "eth0").
-
-    Returns:
-        dict: Contains a confirmation message and the path to the output PCAP file.
-
-    Raises:
-        HTTPException: If the capture cannot be started or an unexpected error occurs.
-    """
-    try:
-        file_path = manager.start_capture(interface)
-        return {"message": f"Capture started on {interface}", "file": file_path}
-    except RuntimeError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/wireshark/stop")
-def stop():
-    """
-    Stop the ongoing network traffic capture.
-
-    Returns:
-        dict: Contains a confirmation message and the path to the saved PCAP file.
-
-    Raises:
-        HTTPException: If no capture is running or an unexpected error occurs.
-    """
-    try:
-        file_path = manager.stop_capture()
-        return {"message": "Capture stopped", "file": file_path}
-    except RuntimeError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/wireshark/download")
-def download():
-    """
-    Download the most recent PCAP file generated by Tshark.
-
-    Returns:
-        FileResponse: The PCAP file containing the captured network traffic.
-
-    Raises:
-        HTTPException: If no valid capture file is available.
-    """
-    if not manager.capture_file or not os.path.exists(manager.capture_file):
-        raise HTTPException(status_code=404, detail="No capture file available")
-    return FileResponse(manager.capture_file, media_type="application/octet-stream", filename="capture.pcap")
