@@ -4,10 +4,10 @@ import yaml
 import os
 import subprocess
 from fastapi.responses import FileResponse
-from tshark.capture_manager import CaptureManager
+from wireshark.packet_manager import PacketRecordManager
 
 app = FastAPI()
-manager = CaptureManager()
+manager = PacketRecordManager()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")

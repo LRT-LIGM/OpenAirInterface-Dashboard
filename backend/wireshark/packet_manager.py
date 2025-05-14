@@ -2,7 +2,7 @@ import subprocess
 import os
 from datetime import datetime
 
-class CaptureManager:
+class PacketRecordManager:
     """
     Manage network traffic captures using Tshark. This class provides
     methods to start and stop a capture process, and keeps track of the
@@ -10,10 +10,10 @@ class CaptureManager:
     """
     def __init__(self):
         """
-            Initialize the CaptureManager.
+            Initialize the PacketRecordManager.
 
             Attributes:
-                process (subprocess.Popen | None): Reference to the tshark subprocess.
+                process (subprocess.Popen | None): Reference to the wireshark subprocess.
                 capture_file (str | None): Path to the capture file being written.
         """
         self.process = None
@@ -21,7 +21,7 @@ class CaptureManager:
 
     def start_capture(self, interface="eth0"):
         """
-        Start a tshark capture on the specified network interface.
+        Start a wireshark capture on the specified network interface.
 
         Args:
             interface (str): Name of the network interface to capture from (default: "eth0").
@@ -33,7 +33,7 @@ class CaptureManager:
             RuntimeError: If a capture is already running.
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        capture_dir = "tshark/captures"
+        capture_dir = "wireshark/captures"
         os.makedirs(capture_dir, exist_ok=True)
         self.capture_file = f"{capture_dir}/capture_{interface}_{timestamp}.pcap"
         if self.process:
@@ -46,7 +46,7 @@ class CaptureManager:
 
     def stop_capture(self):
         """
-        Stop the current tshark capture.
+        Stop the current wireshark capture.
 
         Returns:
             str: Path to the saved capture file.
