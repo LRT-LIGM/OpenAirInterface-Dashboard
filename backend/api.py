@@ -203,7 +203,7 @@ def get_service_status(service_name: str):
     container = services_map[service_name]
     return query_prometheus_status_only(container)
 
-@app.websocket("/ws/capture")
+@app.websocket("/ws/pcap")
 async def websocket_endpoint(websocket: WebSocket):
     """
     Handle a WebSocket connection for live packet capture with optional filtering.
@@ -213,7 +213,7 @@ async def websocket_endpoint(websocket: WebSocket):
     which allows filtering packets by protocol or other tshark-compatible filters.
 
     Example usage:
-        ws://localhost:8001/ws/capture?filter=udp
+        ws://localhost:8001/ws/pcap?filter=udp
         (captures only UDP packets)
 
     Args:
