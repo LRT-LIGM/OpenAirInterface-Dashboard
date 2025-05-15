@@ -1,13 +1,13 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket
+from wireshark.packet_manager import capture_packets
 import requests
 import yaml
 import os
 import subprocess
-from fastapi.responses import FileResponse
-from wireshark.packet_manager import PacketRecordManager
+import time
+
 
 app = FastAPI()
-manager = PacketRecordManager()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
@@ -147,57 +147,38 @@ def stop_core_network():
             headers={"X-Error": "Unexpected Error"}
         )
 
-
 @app.post("/core/restart")
 def restart_core_network():
     """
-    Restart the 5G core network using `docker compose`.
-
-    This endpoint restarts the 5G core network by invoking the `docker compose restart`
-    command with the specified Compose file, which stops and then restarts all services.
+    Restart the 5G core network by stopping it, waiting 4 seconds,
+    then starting it again.
 
     Returns:
-        dict: A dictionary containing:
-            - message (str): A confirmation message if the core is restarted successfully.
-            - stdout (str): Standard output from the docker compose command.
-            - stderr (str): Standard error output from the docker compose command.
-            - returncode (int): The return code from the subprocess execution.
+        dict: A dictionary containing the combined result of stopping
+              and starting the core network, with their respective
+              stdout, stderr, and return codes.
 
     Raises:
-        HTTPException: If the subprocess fails to execute the docker compose command
-                       or if an unexpected error occurs.
+        HTTPException: If an error occurs during stop or start subprocess execution.
     """
     try:
-        result = subprocess.run(
-            ["docker", "compose", "-f", FIVEG_CORE_DOCKER_COMPOSE_PATH, "restart"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-
-        stdout = result.stdout.decode("utf-8")
-        stderr = result.stderr.decode("utf-8")
-
-        if result.returncode != 0:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to restart the core network: {stderr}",
-                headers={"X-Error": "Core Restart Error"}
-            )
+        stop_result = stop_core_network()
+        time.sleep(4)
+        start_result = start_core_network()
 
         return {
             "message": "Core network restarted successfully",
-            "stdout": stdout,
-            "stderr": stderr,
-            "returncode": result.returncode
+            "stop": stop_result,
+            "start": start_result,
         }
-
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Unexpected error during restart: {str(e)}",
             headers={"X-Error": "Unexpected Error"}
         )
-
 
 @app.get("/core/{service_name}/status")
 def get_service_status(service_name: str):
@@ -222,58 +203,36 @@ def get_service_status(service_name: str):
     container = services_map[service_name]
     return query_prometheus_status_only(container)
 
-@app.post("/wireshark/start")
-def start(interface: str = "eth0"):
+@app.websocket("/ws/capture")
+async def websocket_endpoint(websocket: WebSocket):
     """
-    Start a network traffic capture using Tshark on a specified interface.
+    Handle a WebSocket connection for live packet capture with optional filtering.
+
+    This endpoint accepts a WebSocket connection and streams captured network packets
+    in real-time. It supports an optional capture filter provided as a URL query parameter,
+    which allows filtering packets by protocol or other tshark-compatible filters.
+
+    Example usage:
+        ws://localhost:8001/ws/capture?filter=udp
+        (captures only UDP packets)
 
     Args:
-        interface (str): The network interface to capture traffic from (default is "eth0").
+        websocket (WebSocket): The WebSocket connection instance.
+
+    Query Parameters:
+        filter (str, optional): A capture filter string in tshark/BPF syntax.
+                                For example, "udp" to capture only UDP packets.
+                                If omitted, captures all packets.
 
     Returns:
-        dict: Contains a confirmation message and the path to the output PCAP file.
+        None: This is a WebSocket endpoint that asynchronously streams JSON-formatted
+            packet data to the client.
 
     Raises:
-        HTTPException: If the capture cannot be started or an unexpected error occurs.
+        WebSocketDisconnect: If the client disconnects during the capture.
+        Exception: For unexpected errors during packet capture.
     """
-    try:
-        file_path = manager.start_capture(interface)
-        return {"message": f"Capture started on {interface}", "file": file_path}
-    except RuntimeError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/wireshark/stop")
-def stop():
-    """
-    Stop the ongoing network traffic capture.
-
-    Returns:
-        dict: Contains a confirmation message and the path to the saved PCAP file.
-
-    Raises:
-        HTTPException: If no capture is running or an unexpected error occurs.
-    """
-    try:
-        file_path = manager.stop_capture()
-        return {"message": "Capture stopped", "file": file_path}
-    except RuntimeError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/wireshark/download")
-def download():
-    """
-    Download the most recent PCAP file generated by Tshark.
-
-    Returns:
-        FileResponse: The PCAP file containing the captured network traffic.
-
-    Raises:
-        HTTPException: If no valid capture file is available.
-    """
-    if not manager.capture_file or not os.path.exists(manager.capture_file):
-        raise HTTPException(status_code=404, detail="No capture file available")
-    return FileResponse(manager.capture_file, media_type="application/octet-stream", filename="capture.pcap")
+    await websocket.accept()
+    query_params = websocket.query_params
+    capture_filter = query_params.get("filter", "")
+    await capture_packets(websocket, capture_filter=capture_filter)

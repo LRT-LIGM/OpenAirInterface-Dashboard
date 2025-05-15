@@ -1,63 +1,31 @@
-import subprocess
-import os
-from datetime import datetime
+from asyncio.subprocess import PIPE, create_subprocess_exec
 
-class PacketRecordManager:
-    """
-    Manage network traffic captures using Tshark. This class provides
-    methods to start and stop a capture process, and keeps track of the
-    current capture file path.
-    """
-    def __init__(self):
-        """
-            Initialize the PacketRecordManager.
+async def capture_packets(websocket, interface="eth0", capture_filter=""):
+    try:
+        process = await create_subprocess_exec(
+            "tshark",
+            "-i", interface,
+            "-f", capture_filter,
+            "-l",
+            "-T", "json",
+            stdout=PIPE,
+            stderr=PIPE,
+        )
 
-            Attributes:
-                process (subprocess.Popen | None): Reference to the wireshark subprocess.
-                capture_file (str | None): Path to the capture file being written.
-        """
-        self.process = None
-        self.capture_file = None
+        while True:
+            line = await process.stdout.readline()
+            if not line:
+                break
 
-    def start_capture(self, interface="eth0"):
-        """
-        Start a wireshark capture on the specified network interface.
+            try:
+                decoded = line.decode("utf-8").strip()
+                if decoded:
+                    await websocket.send_text(decoded)
+            except Exception as e:
+                print(f"[ERROR] Sending line failed: {e}")
+                break
 
-        Args:
-            interface (str): Name of the network interface to capture from (default: "eth0").
-
-        Returns:
-            str: Path to the capture file.
-
-        Raises:
-            RuntimeError: If a capture is already running.
-        """
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        capture_dir = "wireshark/captures"
-        os.makedirs(capture_dir, exist_ok=True)
-        self.capture_file = f"{capture_dir}/capture_{interface}_{timestamp}.pcap"
-        if self.process:
-            raise RuntimeError("Capture already running")
-
-        self.process = subprocess.Popen([
-            "tshark", "-i", interface, "-w", self.capture_file
-        ])
-        return self.capture_file
-
-    def stop_capture(self):
-        """
-        Stop the current wireshark capture.
-
-        Returns:
-            str: Path to the saved capture file.
-
-        Raises:
-            RuntimeError: If no capture is currently running.
-        """
-        if not self.process:
-            raise RuntimeError("No capture running")
-
-        self.process.terminate()
-        self.process.wait()
-        self.process = None
-        return self.capture_file
+    except Exception as e:
+        print(f"[ERROR] Could not run tshark: {e}")
+    finally:
+        await websocket.close()
