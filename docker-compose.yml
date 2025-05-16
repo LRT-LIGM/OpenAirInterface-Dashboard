@@ -29,7 +29,7 @@ services:
       - ./config:/app/config
       - /home/user/oai-cn5g:/home/user/oai-cn5g
     cap_add:
-      - NET_RAW
+      - NET_ADMIN
     depends_on:
       - prometheus
     environment:

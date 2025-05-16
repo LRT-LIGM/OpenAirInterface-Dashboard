@@ -6,6 +6,8 @@ mkdocs-git-revision-date-localized-plugin
 mkdocs-macros-plugin
 prometheus-client
 uvicorn
+pyshark
+
 
 fastapi~=0.115.12
 docker~=7.1.0

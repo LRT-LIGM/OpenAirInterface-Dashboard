@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, WebSocket
-from wireshark.packet_manager import capture_packets
+from fastapi import FastAPI, HTTPException, WebSocket, Query
+from backend.wireshark.packet_manager import capture_packets
 import requests
 import yaml
 import os
@@ -204,35 +204,27 @@ def get_service_status(service_name: str):
     return query_prometheus_status_only(container)
 
 @app.websocket("/ws/pcap")
-async def websocket_endpoint(websocket: WebSocket):
+async def live_packet_stream(websocket: WebSocket, filter: str = Query(default="")):
     """
-    Handle a WebSocket connection for live packet capture with optional filtering.
+    Establish a WebSocket connection for live packet capture.
 
-    This endpoint accepts a WebSocket connection and streams captured network packets
-    in real-time. It supports an optional capture filter provided as a URL query parameter,
-    which allows filtering packets by protocol or other tshark-compatible filters.
-
-    Example usage:
-        ws://localhost:8001/ws/pcap?filter=udp
-        (captures only UDP packets)
+    This endpoint initializes a real-time capture session using PyShark on a specified
+    network interface (default is eth0) and streams captured packets through the WebSocket
+    connection. An optional BPF (Berkeley Packet Filter) can be provided to filter the
+    captured traffic.
 
     Args:
-        websocket (WebSocket): The WebSocket connection instance.
-
-    Query Parameters:
-        filter (str, optional): A capture filter string in tshark/BPF syntax.
-                                For example, "udp" to capture only UDP packets.
-                                If omitted, captures all packets.
+        websocket (WebSocket): The WebSocket connection established with the client.
+        filter (str, optional): A BPF filter string to limit the captured packets
+                                (example : "udp", "tcp"). Default is no filter.
 
     Returns:
-        None: This is a WebSocket endpoint that asynchronously streams JSON-formatted
-            packet data to the client.
+        None: The captured packets are streamed live to the client over the WebSocket connection.
 
     Raises:
-        WebSocketDisconnect: If the client disconnects during the capture.
-        Exception: For unexpected errors during packet capture.
+        None directly, but connection may close automatically if PyShark encounters an error
+        (example : invalid BPF syntax, interface not found, etc.).
     """
     await websocket.accept()
-    query_params = websocket.query_params
-    capture_filter = query_params.get("filter", "")
-    await capture_packets(websocket, capture_filter=capture_filter)
+    print(f"BPF filter : '{filter}'")
+    await capture_packets(websocket, bpf_filter=filter)

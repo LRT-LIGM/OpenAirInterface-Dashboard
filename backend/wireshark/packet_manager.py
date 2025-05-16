@@ -1,53 +1,70 @@
-from asyncio.subprocess import PIPE, create_subprocess_exec
+import pyshark
+import threading
+import asyncio
+from queue import Queue
 
-async def capture_packets(websocket, interface="eth0", capture_filter=""):
+def capture_packets_thread(interface, queue, bpf_filter):
     """
-    Capture live network packets using `tshark` and stream them over a WebSocket connection.
+    Capture packets in a separate thread using PyShark.
 
-    This function launches a subprocess running `tshark` with the given network interface
-    and optional BPF filter (e.g., "udp"). The output is read line by line in JSON format
-    and streamed to the connected WebSocket client.
+    This function initializes a live packet capture on the specified network interface
+    and continuously places the captured packets in a thread-safe queue. An optional
+    BPF (Berkeley Packet Filter) can be applied to filter the captured traffic.
 
     Args:
-        websocket (WebSocket): The WebSocket connection through which packets are sent.
-        interface (str, optional): The network interface to capture from. Defaults to "eth0".
-        capture_filter (str, optional): An optional BPF (Berkeley Packet Filter) string
-                                        to filter captured packets (e.g., "udp").
+        interface (str): The name of the network interface to capture packets from (e.g., 'eth0').
+        queue (Queue): A thread-safe queue to store captured packet data.
+        bpf_filter (str): A BPF filter string to apply to the capture (e.g., 'udp', 'tcp port 80').
 
     Returns:
-        None: Data is streamed continuously to the WebSocket client. The function terminates
-              when the capture ends or an error occurs.
+        None
+    """
+    capture = pyshark.LiveCapture(interface=interface, bpf_filter=bpf_filter or None)
+    for packet in capture.sniff_continuously():
+        queue.put(str(packet))
+
+async def capture_packets(websocket, interface="eth0", bpf_filter=""):
+    """
+    Asynchronously stream captured packets through a WebSocket connection.
+
+    This function runs a background thread to capture network packets using PyShark
+    and asynchronously sends the packet data to the connected WebSocket client.
+    It supports optional filtering using BPF syntax.
+
+    Args:
+        websocket (WebSocket): The WebSocket connection to stream captured packet data.
+        interface (str, optional): Network interface to use for capturing (default is 'eth0').
+        bpf_filter (str, optional): Optional BPF filter to apply during capture.
+
+    Returns:
+        None
 
     Raises:
-        None directly, but logs errors if `tshark` cannot be executed or if the WebSocket
-        transmission fails.
+        Any exception encountered during capture or WebSocket communication is caught and logged.
     """
+    packet_queue = Queue()
 
     try:
-        process = await create_subprocess_exec(
-            "tshark",
-            "-i", interface,
-            "-f", capture_filter,
-            "-l",
-            "-T", "json",
-            stdout=PIPE,
-            stderr=PIPE,
+        thread = threading.Thread(
+            target=capture_packets_thread,
+            args=(interface, packet_queue, bpf_filter),
+            daemon=True
         )
+        thread.start()
 
+        await websocket.send_text(f">>> STARTING PACKET CAPTURE with filter: '{bpf_filter}' <<<")
         while True:
-            line = await process.stdout.readline()
-            if not line:
-                break
-
-            try:
-                decoded = line.decode("utf-8").strip()
-                if decoded:
-                    await websocket.send_text(decoded)
-            except Exception as e:
-                print(f"[ERROR] Sending line failed: {e}")
-                break
+            await asyncio.sleep(0.1)
+            while not packet_queue.empty():
+                packet = packet_queue.get()
+                await websocket.send_text(packet)
 
     except Exception as e:
-        print(f"[ERROR] Could not run tshark: {e}")
+        print(f"[ERROR] Packet capture failed: {e}")
+        if websocket.client_state.name != "DISCONNECTED":
+            await websocket.send_text(f"[ERROR] Internal Server Error: {e}")
+            await websocket.close(code=1011)
     finally:
-        await websocket.close()
+        if websocket.client_state.name != "DISCONNECTED":
+            print("Closing WebSocket connection")
+            await websocket.close()
