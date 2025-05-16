@@ -1,8 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, Query
+from wireshark.packet_manager import capture_packets
 import requests
 import yaml
 import os
 import subprocess
+import time
+
 
 app = FastAPI()
 
@@ -144,57 +147,38 @@ def stop_core_network():
             headers={"X-Error": "Unexpected Error"}
         )
 
-
 @app.post("/core/restart")
 def restart_core_network():
     """
-    Restart the 5G core network using `docker compose`.
-
-    This endpoint restarts the 5G core network by invoking the `docker compose restart`
-    command with the specified Compose file, which stops and then restarts all services.
+    Restart the 5G core network by stopping it, waiting 4 seconds,
+    then starting it again.
 
     Returns:
-        dict: A dictionary containing:
-            - message (str): A confirmation message if the core is restarted successfully.
-            - stdout (str): Standard output from the docker compose command.
-            - stderr (str): Standard error output from the docker compose command.
-            - returncode (int): The return code from the subprocess execution.
+        dict: A dictionary containing the combined result of stopping
+              and starting the core network, with their respective
+              stdout, stderr, and return codes.
 
     Raises:
-        HTTPException: If the subprocess fails to execute the docker compose command
-                       or if an unexpected error occurs.
+        HTTPException: If an error occurs during stop or start subprocess execution.
     """
     try:
-        result = subprocess.run(
-            ["docker", "compose", "-f", FIVEG_CORE_DOCKER_COMPOSE_PATH, "restart"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-
-        stdout = result.stdout.decode("utf-8")
-        stderr = result.stderr.decode("utf-8")
-
-        if result.returncode != 0:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to restart the core network: {stderr}",
-                headers={"X-Error": "Core Restart Error"}
-            )
+        stop_result = stop_core_network()
+        time.sleep(4)
+        start_result = start_core_network()
 
         return {
             "message": "Core network restarted successfully",
-            "stdout": stdout,
-            "stderr": stderr,
-            "returncode": result.returncode
+            "stop": stop_result,
+            "start": start_result,
         }
-
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Unexpected error during restart: {str(e)}",
             headers={"X-Error": "Unexpected Error"}
         )
-
 
 @app.get("/core/{service_name}/status")
 def get_service_status(service_name: str):
@@ -218,3 +202,29 @@ def get_service_status(service_name: str):
         raise HTTPException(status_code=404, detail="Service not found")
     container = services_map[service_name]
     return query_prometheus_status_only(container)
+
+@app.websocket("/ws/pcap")
+async def live_packet_stream(websocket: WebSocket, filter: str = Query(default="")):
+    """
+    Establish a WebSocket connection for live packet capture.
+
+    This endpoint initializes a real-time capture session using PyShark on a specified
+    network interface (default is eth0) and streams captured packets through the WebSocket
+    connection. An optional BPF (Berkeley Packet Filter) can be provided to filter the
+    captured traffic.
+
+    Args:
+        websocket (WebSocket): The WebSocket connection established with the client.
+        filter (str, optional): A BPF filter string to limit the captured packets
+                                (example : "udp", "tcp"). Default is no filter.
+
+    Returns:
+        None: The captured packets are streamed live to the client over the WebSocket connection.
+
+    Raises:
+        None directly, but connection may close automatically if PyShark encounters an error
+        (example : invalid BPF syntax, interface not found, etc.).
+    """
+    await websocket.accept()
+    print(f"BPF filter : '{filter}'")
+    await capture_packets(websocket, bpf_filter=filter)
