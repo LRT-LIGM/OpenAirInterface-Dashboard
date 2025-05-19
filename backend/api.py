@@ -204,7 +204,7 @@ def get_service_status(service_name: str):
     return query_prometheus_status_only(container)
 
 @app.websocket("/ws/pcap")
-async def live_packet_stream(websocket: WebSocket, filter: str = Query(default="")):
+async def live_packet_stream(websocket: WebSocket, bpf_filter: str = Query(default="")):
     """
     Establish a WebSocket connection for live packet capture.
 
@@ -215,7 +215,7 @@ async def live_packet_stream(websocket: WebSocket, filter: str = Query(default="
 
     Args:
         websocket (WebSocket): The WebSocket connection established with the client.
-        filter (str, optional): A BPF filter string to limit the captured packets
+        bpf_filter (str, optional): A BPF filter string to limit the captured packets
                                 (example : "udp", "tcp"). Default is no filter.
 
     Returns:
@@ -226,5 +226,5 @@ async def live_packet_stream(websocket: WebSocket, filter: str = Query(default="
         (example : invalid BPF syntax, interface not found, etc.).
     """
     await websocket.accept()
-    print(f"BPF filter : '{filter}'")
-    await capture_packets(websocket, bpf_filter=filter)
+    print(f"BPF filter : '{bpf_filter}'")
+    await capture_packets(websocket, bpf_filter=bpf_filter)
