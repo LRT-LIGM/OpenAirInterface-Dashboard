@@ -27,7 +27,12 @@ ws://<your-host>/ws/pcap?interface=<interface_name>&bpf_filter=<filter_name>
 
 Example usage :
 
-```bash
-ws://localhost:8001/ws/pcap?interface=any&bpf_filter=udp
-```
+|  Interface  |   Filter   |                             URL                             |
+|:-----------:|:----------:|:-----------------------------------------------------------:|
+|   `eth0`    |  *(none)*  |                `ws://localhost:8001/ws/pcap`                |
+|    `any`    |  *(none)*  |         `ws://localhost:8001/ws/pcap?interface=any`         |
+|   `eth0`    |    `ip`    |         `ws://localhost:8001/ws/pcap?bpf_filter=ip`         |
+|    `any`    |   `udp`    | `ws://localhost:8001/ws/pcap?interface=any&bpf_filter=udp`  |
+
+
 You can visit [this website](https://www.tcpdump.org/manpages/pcap-filter.7.html) to explore all the available BPF filters and learn more about their syntax.
