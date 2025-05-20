@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, WebSocket
-from wireshark.packet_manager import capture_packets
+from backend.wireshark.packet_manager import capture_packets
 import requests
 import yaml
 import os

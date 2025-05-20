@@ -9,7 +9,8 @@ uvicorn
 pyshark
 pytest
 fastapi
-
+httpx
+pytest-asyncio
 docker~=7.1.0
 requests~=2.32.3
 websockets~=15.0.1
