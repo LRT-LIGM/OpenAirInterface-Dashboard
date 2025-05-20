@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, WebSocket, Query
+from fastapi import FastAPI, HTTPException, WebSocket
 from wireshark.packet_manager import capture_packets
 import requests
 import yaml
@@ -204,19 +204,21 @@ def get_service_status(service_name: str):
     return query_prometheus_status_only(container)
 
 @app.websocket("/ws/pcap")
-async def live_packet_stream(websocket: WebSocket, bpf_filter: str = Query(default="")):
+async def live_packet_stream(websocket: WebSocket):
     """
-    Establish a WebSocket connection for live packet capture.
+    WebSocket endpoint for live network packet capture.
 
-    This endpoint initializes a real-time capture session using PyShark on a specified
-    network interface (default is eth0) and streams captured packets through the WebSocket
-    connection. An optional BPF (Berkeley Packet Filter) can be provided to filter the
-    captured traffic.
+    Establishes a WebSocket connection with the client and starts capturing network
+    packets in real time using PyShark. The capture is performed on a specified
+    network interface (default: "eth0"), and can be optionally filtered using a
+    BPF (Berkeley Packet Filter) expression (example : "udp", "ip").
+
+    The interface and filter can be provided as query parameters:
+        - interface (str): the name of the network interface to capture from. Default is "eth0"
+        - bpf_filter (str): an optional BPF filter expression. Default is no filter
 
     Args:
-        websocket (WebSocket): The WebSocket connection established with the client.
-        bpf_filter (str, optional): A BPF filter string to limit the captured packets
-                                (example : "udp", "tcp"). Default is no filter.
+        websocket (WebSocket): The WebSocket connection with the client.
 
     Returns:
         None: The captured packets are streamed live to the client over the WebSocket connection.
@@ -226,5 +228,9 @@ async def live_packet_stream(websocket: WebSocket, bpf_filter: str = Query(defau
         (example : invalid BPF syntax, interface not found, etc.).
     """
     await websocket.accept()
-    print(f"BPF filter : '{bpf_filter}'")
-    await capture_packets(websocket, bpf_filter=bpf_filter)
+
+    interface = websocket.query_params.get("interface", "eth0")
+    bpf_filter = websocket.query_params.get("bpf_filter", "")
+
+    print(f"Interface: '{interface}', BPF filter: '{bpf_filter}'")
+    await capture_packets(websocket, interface=interface, bpf_filter=bpf_filter)

@@ -7,9 +7,9 @@ mkdocs-macros-plugin
 prometheus-client
 uvicorn
 pyshark
+pytest
+fastapi
 
-
-fastapi~=0.115.12
 docker~=7.1.0
 requests~=2.32.3
 websockets~=15.0.1
