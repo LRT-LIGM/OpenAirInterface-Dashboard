@@ -5,7 +5,7 @@ import yaml
 import os
 import subprocess
 import time
-
+import logging
 
 app = FastAPI()
 
@@ -232,5 +232,6 @@ async def live_packet_stream(websocket: WebSocket):
     interface = websocket.query_params.get("interface", "eth0")
     bpf_filter = websocket.query_params.get("bpf_filter", "")
 
-    print(f"Interface: '{interface}', BPF filter: '{bpf_filter}'")
+    logging.info(f"New WebSocket connection: interface={interface}, bpf_filter={bpf_filter}")
+
     await capture_packets(websocket, interface=interface, bpf_filter=bpf_filter)

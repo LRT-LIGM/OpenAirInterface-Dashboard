@@ -3,6 +3,7 @@ import threading
 import asyncio
 from queue import Queue
 import logging
+from fastapi import WebSocketException
 
 def capture_packets_thread(interface, queue, bpf_filter):
     """
@@ -73,7 +74,7 @@ async def capture_packets(websocket, interface="eth0", bpf_filter=""):
                 packet = packet_queue.get()
                 if "error" in packet:
                     await websocket.send_json(packet)
-                    raise RuntimeError(packet["error"])
+                    raise WebSocketException(code=1011)
                 await websocket.send_json(packet)
 
     except Exception as e:
