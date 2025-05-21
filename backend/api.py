@@ -11,6 +11,8 @@ app = FastAPI()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
+GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
+GNB_EXECUTABLE = os.getenv("GNB_CONFIG_PATH","./cmake_targets/ran_build/build/nr-softmodem")
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -235,3 +237,44 @@ async def live_packet_stream(websocket: WebSocket):
     logging.info(f"New WebSocket connection: interface={interface}, bpf_filter={bpf_filter}")
 
     await capture_packets(websocket, interface=interface, bpf_filter=bpf_filter)
+
+@app.get("/gnb/start")
+def start_gnb():
+    """
+    Start the gNB process using the nr-softmodem executable and a given YAML configuration.
+
+    This endpoint verifies the existence of the specified configuration file and
+    starts the gNB process using subprocess. The process is launched in the background
+    with standard output and error redirected to /dev/null. It returns the PID of
+    the newly created process.
+
+    Returns:
+        dict: A dictionary containing the status message and the PID of the gNB process.
+
+    Raises:
+        HTTPException:
+            - 404: If the configuration file is not found at the specified path.
+            - 500: If an unexpected error occurs while attempting to start the gNB process.
+    """
+    try:
+        if not os.path.isfile(GNB_CONFIG_PATH):
+            raise HTTPException(status_code=404, detail="Configuration file not found.")
+
+        process = subprocess.Popen(
+            ["sudo", GNB_EXECUTABLE, "-O", GNB_CONFIG_PATH],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+
+        return {"status": "gNB starting", "pid": process.pid}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to start gNB: {str(e)}")
+
+@app.get("/gnb/stop")
+def stop_gnb():
+    try:
+        subprocess.run(["sudo", "pkill", "-f", GNB_EXECUTABLE], check=True)
+        return {"status": "gNB stopped"}
+    except subprocess.CalledProcessError:
+        raise HTTPException(status_code=500, detail="Failed to stop gNB")
