@@ -7,12 +7,11 @@ from fastapi import WebSocketException
 
 def capture_packets_thread(interface, queue, bpf_filter):
     """
-    Background packet capture using PyShark, producing simplified JSON output.
+    Background packet capture using PyShark, producing detailed JSON output.
 
-    This function runs in a separate thread, capturing packets from the specified
-    network interface with an optional BPF filter. Each packet is parsed into a
-    JSON-serializable dictionary containing a summary, timestamp, length, and
-    protocol layers, then placed into a thread-safe queue.
+    This function captures packets from the specified network interface with
+    an optional BPF filter. Each packet is parsed into a JSON dictionary
+    containing IP addresses, ports, transport protocol, highest layer, and timestamp.
 
     Args:
         interface (str): Network interface to capture from.
@@ -25,11 +24,45 @@ def capture_packets_thread(interface, queue, bpf_filter):
     try:
         capture = pyshark.LiveCapture(interface=interface, bpf_filter=bpf_filter or None)
         for packet in capture.sniff_continuously():
-            packet_data = {
-                "summary": str(packet),
-                "timestamp": getattr(packet, "sniff_time", None).isoformat() if hasattr(packet, "sniff_time") else None,
-            }
-            queue.put(packet_data)
+            try:
+                summary = str(packet)
+                timestamp = getattr(packet, "sniff_time", None).isoformat() if hasattr(packet, "sniff_time") else None
+                highest_layer = packet.highest_layer
+
+                ip_layer = packet.ip if hasattr(packet, 'ip') else None
+                src_ip = ip_layer.src if ip_layer else None
+                dst_ip = ip_layer.dst if ip_layer else None
+
+                transport_protocol = None
+                src_port = None
+                dst_port = None
+                if hasattr(packet, 'tcp'):
+                    transport_protocol = "TCP"
+                    src_port = packet.tcp.srcport
+                    dst_port = packet.tcp.dstport
+                elif hasattr(packet, 'udp'):
+                    transport_protocol = "UDP"
+                    src_port = packet.udp.srcport
+                    dst_port = packet.udp.dstport
+
+                packet_data = {
+                    "summary": summary,
+                    "timestamp": timestamp,
+                    "ip": {
+                        "src": src_ip,
+                        "dst": dst_ip
+                    },
+                    "transport": {
+                        "protocol": transport_protocol,
+                        "src_port": src_port,
+                        "dst_port": dst_port
+                    },
+                    "highest_protocol": highest_layer
+                }
+
+                queue.put(packet_data)
+            except Exception as parse_error:
+                queue.put({"error": f"Error parsing packet: {str(parse_error)}"})
     except Exception as e:
         queue.put({"error": f"Packet capture failed: {str(e)}"})
 
