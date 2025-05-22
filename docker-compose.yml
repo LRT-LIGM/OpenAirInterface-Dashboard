@@ -28,6 +28,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config:/app/config
       - /home/user/oai-cn5g:/home/user/oai-cn5g
+      - /home/user/openairinterface5g:/home/user/openairinterface5g
     cap_add:
       - NET_ADMIN
     depends_on:
@@ -35,8 +36,8 @@ services:
     environment:
       - PROMETHEUS_URL=http://prometheus:9090
       - FIVEG_CORE_DOCKER_COMPOSE_PATH=/home/user/oai-cn5g/docker-compose.yaml
-      - GNB_CONFIG_PATH = targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml
-      - GNB_EXECUTABLE = ./cmake_targets/ran_build/build/nr-softmodem
+      - GNB_CONFIG_PATH=targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml
+      - GNB_EXECUTABLE=./cmake_targets/ran_build/build/nr-softmodem
 
 
 

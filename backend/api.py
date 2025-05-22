@@ -1,4 +1,6 @@
+import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket
+from starlette.websockets import WebSocketDisconnect
 from backend.wireshark.packet_manager import capture_packets
 import requests
 import yaml
@@ -6,13 +8,16 @@ import os
 import subprocess
 import time
 import logging
+from pathlib import Path
 
 app = FastAPI()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
-GNB_EXECUTABLE = os.getenv("GNB_CONFIG_PATH","./cmake_targets/ran_build/build/nr-softmodem")
+GNB_EXECUTABLE = os.getenv("GNB_EXECUTABLE","./cmake_targets/ran_build/build/nr-softmodem") #mettre le chemin absolu pour c'est  variable
+
+gnb_process = None
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -238,43 +243,104 @@ async def live_packet_stream(websocket: WebSocket):
 
     await capture_packets(websocket, interface=interface, bpf_filter=bpf_filter)
 
-@app.get("/gnb/start")
+@app.post("/gnb/start")
 def start_gnb():
     """
-    Start the gNB process using the nr-softmodem executable and a given YAML configuration.
+    Start the gNB (gNodeB) process using the specified configuration and executable.
 
-    This endpoint verifies the existence of the specified configuration file and
-    starts the gNB process using subprocess. The process is launched in the background
-    with standard output and error redirected to /dev/null. It returns the PID of
-    the newly created process.
+    This endpoint attempts to launch the gNB process using the paths defined in the environment variables.
+    It ensures the configuration file and the gNB executable are both present before launching.
 
     Returns:
-        dict: A dictionary containing the status message and the PID of the gNB process.
+        dict: A dictionary with:
+              - "status": Confirmation that the gNB is starting,
+              - "pid": Process ID of the started gNB process.
 
     Raises:
-        HTTPException:
-            - 404: If the configuration file is not found at the specified path.
-            - 500: If an unexpected error occurs while attempting to start the gNB process.
+        HTTPException: Raised when:
+            - The gNB configuration file is not found (404),
+            - The gNB executable is not found (404),
+            - Any unexpected error occurs while attempting to start the process (500).
     """
+    global gnb_process
     try:
         if not os.path.isfile(GNB_CONFIG_PATH):
             raise HTTPException(status_code=404, detail="Configuration file not found.")
 
-        process = subprocess.Popen(
-            ["sudo", GNB_EXECUTABLE, "-O", GNB_CONFIG_PATH],
+        if not Path(GNB_EXECUTABLE).is_file():
+            raise HTTPException(status_code=404, detail="gNB executable not found.")
+
+        gnb_process = subprocess.Popen(
+            [GNB_EXECUTABLE, "-O", GNB_CONFIG_PATH],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.DEVNULL,
+            text=True,
+            bufsize=1
         )
 
-        return {"status": "gNB starting", "pid": process.pid}
+        return {
+            "status": "gNB starting",
+            "pid": gnb_process.pid
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to start gNB: {str(e)}")
 
-@app.get("/gnb/stop")
+@app.post("/gnb/stop")
 def stop_gnb():
+    """
+    Stop the gNB process by killing it using the 'pkill' system command.
+
+    This endpoint attempts to terminate the gNB process identified by the
+    GNB_EXECUTABLE pattern. It uses the 'pkill' command to find and kill
+    the process(es). The response indicates whether the process was stopped,
+    was not found, or if an error occurred.
+
+    Returns:
+        dict: A dictionary with the status of the stop operation:
+              - "gNB stopped" if the process was successfully terminated,
+              - "No gNB process found to stop" if no matching process was running.
+
+    Raises:
+        HTTPException: Raised when an error occurs during the attempt to stop the gNB process.
+                       This includes unexpected failures reported by the system command or other exceptions.
+
+    """
     try:
-        subprocess.run(["sudo", "pkill", "-f", GNB_EXECUTABLE], check=True)
-        return {"status": "gNB stopped"}
-    except subprocess.CalledProcessError:
-        raise HTTPException(status_code=500, detail="Failed to stop gNB")
+        result = subprocess.run(["pkill", "-f", GNB_EXECUTABLE], capture_output=True, text=True)
+        if result.returncode == 0:
+            return {"status": "gNB stopped"}
+        elif result.returncode == 1:
+            return {"status": "No gNB process found to stop"}
+        else:
+            detail = result.stderr.strip() or "Unknown error"
+            raise HTTPException(status_code=500, detail=f"pkill failed: {detail}")
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="pkill command not found.")
+    except subprocess.CalledProcessError as e:
+        raise HTTPException(status_code=500, detail=f"Failed to stop gNB: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+
+@app.websocket("/ws/pcap")
+async def websocket_pcap(websocket: WebSocket):
+    global gnb_process
+    await websocket.accept()
+    if gnb_process is None:
+        await websocket.send_text("gNB process is not running.")
+        await websocket.close()
+        return
+
+    try:
+        while True:
+            if gnb_process.poll() is not None:
+                await websocket.send_text("gNB process ended.")
+                break
+
+            line = await asyncio.get_event_loop().run_in_executor(None, gnb_process.stdout.readline)
+            if line:
+                await websocket.send_text(line.strip())
+            else:
+                await asyncio.sleep(0.1)
+    except WebSocketDisconnect:
+        print("Client disconnected from /ws/pcap")
