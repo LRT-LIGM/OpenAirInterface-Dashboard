@@ -6,8 +6,11 @@ mkdocs-git-revision-date-localized-plugin
 mkdocs-macros-plugin
 prometheus-client
 uvicorn
-
-fastapi~=0.115.12
+pyshark
+pytest
+fastapi
+httpx
+pytest-asyncio
 docker~=7.1.0
 requests~=2.32.3
 websockets~=15.0.1

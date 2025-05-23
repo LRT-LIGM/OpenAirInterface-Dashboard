@@ -32,6 +32,7 @@ nav:
       - Specification : specs.md
       - Intern Roadmap: intern-roadmap.md
       - Configuration of Monitored Services: configuration.md
+      - Packet capture : packet_capture_features.md
 
   - API Reference:
       - Backend API: api/backend.md
