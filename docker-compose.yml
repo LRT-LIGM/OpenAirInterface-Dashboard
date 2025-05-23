@@ -46,6 +46,7 @@ services:
       - FIVEG_CORE_DOCK ER_COMPOSE_PATH=/home/user/oai-cn5g/docker-compose.yaml # [CoreNetwork] Path to CN5G docker-compose to manage CN5G
       - GNB_CONFIG_PATH=/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml # [gNodeB] Path to gNB configuration file
       - GNB_EXECUTABLE=/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem # [gNodeB] Path to gNB executable
+      - CONFIG_DIR = /home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF
 
 
   prometheus:
