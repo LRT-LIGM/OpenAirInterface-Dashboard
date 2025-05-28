@@ -8,18 +8,18 @@ import os
 import subprocess
 import time
 import logging
-import signal
 from pathlib import Path
+import signal
 
 app = FastAPI()
+gnb_process = None
+gnb_stdout_queue = asyncio.Queue()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
 GNB_EXECUTABLE = os.getenv("GNB_EXECUTABLE","/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem")
-
-gnb_process = None
-gnb_stdout_queue = asyncio.Queue()
+GNB_PID_FILE = "/tmp/gnb.pid"
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -264,35 +264,41 @@ async def live_packet_stream(websocket: WebSocket):
 @app.post("/gnb/stop")
 def stop_gnb():
     """
-    Stop the gNB process using its stored PID.
+    Stops the running gNB process using the stored PID.
 
-    This endpoint stops the currently running gNB process by sending a SIGTERM signal
-    to the process identified by the stored PID in the global `gnb_process` object.
+    This endpoint reads the PID from a file, checks if the process is alive,
+    sends a termination signal, and deletes the PID file.
 
     Returns:
-        dict: A dictionary with the status of the stop operation:
-              - "gNB stopped by PID" if the process was successfully terminated,
-              - "No gNB process found to stop" if no process is currently tracked or already terminated.
+        dict: A confirmation message that the process has been stopped.
 
     Raises:
-        HTTPException: Raised when:
-            - The stored process object is not defined or accessible (500),
-            - An error occurs while trying to kill the process (500),
-            - The process is already terminated or does not exist (500).
+        HTTPException 404: If the PID file is missing or the process doesn't exist.
+        HTTPException 500: If there's a permission error or other failure.
     """
-    global gnb_process
     try:
-        if gnb_process and gnb_process.poll() is None:
-            os.kill(gnb_process.pid, signal.SIGTERM)
-            return {"status": "gNB stopped by PID"}
-        else:
-            return {"status": "No gNB process found to stop"}
-    except AttributeError:
-        raise HTTPException(status_code=500, detail="gNB process is not defined.")
-    except ProcessLookupError:
-        raise HTTPException(status_code=500, detail="Process does not exist.")
+        if not os.path.isfile(GNB_PID_FILE):
+            raise HTTPException(status_code=404, detail="No PID file found for gNB.")
+
+        with open(GNB_PID_FILE, "r") as f:
+            pid = int(f.read().strip())
+
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            raise HTTPException(status_code=404, detail="Process does not exist.")
+
+        os.kill(pid, signal.SIGTERM)
+        os.remove(GNB_PID_FILE)
+
+        return {"status": f"gNB process {pid} stopped"}
+
+    except ValueError:
+        raise HTTPException(status_code=500, detail="Invalid PID format in PID file.")
+    except PermissionError:
+        raise HTTPException(status_code=500, detail="No permission to stop the process.")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error stopping gNB: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to stop gNB: {str(e)}")
 
 @app.post("/gnb/start")
 async def start_gnb():
@@ -335,7 +341,6 @@ async def start_gnb():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to start gNB: {str(e)}")
-
 
 @app.websocket("/ws/gnb")
 async def websocket_pcap(websocket: WebSocket):
