@@ -38,7 +38,7 @@ services:
       - FIVEG_CORE_DOCKER_COMPOSE_PATH=/home/user/oai-cn5g/docker-compose.yaml
       - GNB_CONFIG_PATH=/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml
       - GNB_EXECUTABLE=/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem
-      - CONFIG_DIR = /home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF
+      - CONFIG_DIR=/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF
 
 
 
