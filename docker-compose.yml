@@ -17,7 +17,6 @@ services:
       - prometheus
 
 
-
   fastapiapp:
     privileged: true
     build:
@@ -47,7 +46,6 @@ services:
       - GNB_CONFIG_PATH=/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml # [gNodeB] Path to gNB configuration file
       - GNB_EXECUTABLE=/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem # [gNodeB] Path to gNB executable
       - CONFIG_DIR = /home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF
-
 
   prometheus:
     image: prom/prometheus
