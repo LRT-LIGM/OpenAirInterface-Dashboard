@@ -8,8 +8,13 @@ import yaml
 import os
 import asyncio
 import subprocess
-import time
 import logging
+import signal
+from pathlib import Path
+from backend.influx.influx_config import write_api, query_api, INFLUXDB_ORG, INFLUXDB_BUCKET
+import psutil
+import time
+from influxdb_client import Point
 
 app = FastAPI()
 
@@ -337,3 +342,51 @@ def show_gnb_config():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list config files: {str(e)}")
+
+@app.post("/metrics/push")
+def push_metrics():
+    """
+    Collects current system CPU and memory usage metrics and writes them to the InfluxDB bucket.
+    This is a test version to demonstrate InfluxDB integration with FastAPI.
+
+    Returns:
+        dict: A confirmation message including the pushed CPU and memory usage percentages.
+    """
+    cpu_percent = psutil.cpu_percent()
+    mem = psutil.virtual_memory()
+    mem_percent = mem.percent
+
+    point = (
+        Point("system_usage")
+        .field("cpu", cpu_percent)
+        .field("memory", mem_percent)
+    )
+
+    write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
+
+    return {"status": "Metrics pushed", "cpu": cpu_percent, "memory": mem_percent}
+
+@app.get("/metrics/latest")
+def get_latest_metrics():
+    """
+    Queries the latest CPU and memory usage metrics from the InfluxDB bucket for the past 5 minutes.
+    This is a test version to demonstrate InfluxDB integration with FastAPI.
+
+    Returns:
+        dict: A dictionary containing the most recent CPU and memory usage values.
+    """
+    query = f'''
+        from(bucket: "{INFLUXDB_BUCKET}")
+        |> range(start: -5m)
+        |> filter(fn: (r) => r["_measurement"] == "system_usage")
+        |> last()
+    '''
+
+    tables = query_api.query(org=INFLUXDB_ORG, query=query)
+    result = {}
+
+    for table in tables:
+        for record in table.records:
+            result[record.get_field()] = record.get_value()
+
+    return result
