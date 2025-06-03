@@ -33,6 +33,7 @@ nav:
       - Intern Roadmap: intern-roadmap.md
       - Configuration of Monitored Services: configuration.md
       - Packet capture : packet_capture_features.md
+      - GNodeB Implementation: gnodeb_doc.md
 
   - API Reference:
       - Backend API: api/backend.md

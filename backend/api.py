@@ -12,14 +12,11 @@ from pathlib import Path
 import signal
 
 app = FastAPI()
-gnb_process = None
-gnb_stdout_queue = asyncio.Queue()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
 GNB_EXECUTABLE = os.getenv("GNB_EXECUTABLE","/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem")
-GNB_PID_FILE = "/tmp/gnb.pid"
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -29,6 +26,106 @@ except Exception as e:
     config = {}
 
 services_map = {entry["name"]: entry["container"] for entry in config["core_services"]}
+
+class GNodeB:
+    """
+    Represents a gNodeB (gNB) instance with process control and real-time log handling.
+
+    Attributes:
+        process (subprocess.Popen): The currently running gNB process.
+        stdout_queue (asyncio.Queue): Queue for capturing stdout lines from the gNB.
+
+    Methods:
+        start(): Starts the gNB process using the given configuration.
+        stop(): Gracefully stops the gNB process using SIGTERM.
+        is_running(): Checks if the gNB process is still running.
+    """
+    def __init__(self):
+        self.process = None
+        self.stdout_queue = asyncio.Queue()
+
+    async def start(self):
+        """
+        Starts the gNB process using the provided configuration file.
+
+        - Verifies that the config file and executable exist.
+        - Launches the process using subprocess.
+        - Creates an asynchronous task to read and enqueue stdout lines.
+
+        Raises:
+            RuntimeError: If the gNB is already running.
+            FileNotFoundError: If the config or executable file does not exist.
+            Exception: For other process launch errors.
+        """
+        if self.process is not None:
+            raise RuntimeError("gNB already running")
+
+        if not Path(GNB_CONFIG_PATH).is_file():
+            raise FileNotFoundError("Configuration file not found.")
+
+        if not Path(GNB_EXECUTABLE).is_file():
+            raise FileNotFoundError("gNB executable not found.")
+
+        self.process = subprocess.Popen(
+            [GNB_EXECUTABLE, "-O", GNB_CONFIG_PATH],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
+        )
+
+        asyncio.create_task(self._stream_stdout_to_queue())
+
+    async def _stream_stdout_to_queue(self):
+        """
+        Continuously reads the gNB process's stdout and puts each line into the stdout queue.
+
+        This is run as a background async task and allows real-time streaming of logs to WebSocket clients.
+        """
+        while True:
+            line = await asyncio.to_thread(self.process.stdout.readline)
+            if not line:
+                break
+            await self.stdout_queue.put(line)
+
+    def stop(self):
+        """
+        Stops the running gNB process by sending a SIGTERM signal.
+
+        Returns:
+            int: The PID of the process that was terminated.
+
+        Raises:
+            RuntimeError: If no gNB process is currently running.
+            PermissionError: If the process cannot be terminated due to permissions.
+            Exception: For any other stopping error.
+        """
+        if self.process is None:
+            raise RuntimeError("gNB not running")
+
+        try:
+            os.kill(self.process.pid, signal.SIGTERM)
+            pid = self.process.pid
+            self.process = None
+            return pid
+        except ProcessLookupError:
+            self.process = None
+            raise RuntimeError("Process does not exist.")
+        except PermissionError:
+            raise PermissionError("Permission denied.")
+        except Exception as e:
+            raise RuntimeError(str(e))
+
+    def is_running(self):
+        """
+        Checks if the gNB process is currently running.
+
+        Returns:
+            bool: True if the process is active, False otherwise.
+        """
+        return self.process is not None and self.process.poll() is None
+
+gnb = GNodeB()
 
 def query_prometheus_status_only(container_name: str):
     """
@@ -61,24 +158,6 @@ def query_prometheus_status_only(container_name: str):
 
     except (KeyError, IndexError, ValueError) as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: Invalid Prometheus response. {e}")
-
-async def stream_stdout_to_queue(stdout):
-    """
-    Reads lines from a subprocess's stdout and adds them to a queue.
-
-    This async function continuously reads output from the given stdout stream
-    in a background thread and pushes each line into the global gNB stdout queue.
-    It's used to stream logs from the gNB process to WebSocket clients.
-
-    Args:
-        stdout: The standard output stream of a subprocess.
-    """
-    while True:
-        line = await asyncio.get_event_loop().run_in_executor(None, stdout.readline)
-        if line:
-            await gnb_stdout_queue.put(line.strip())
-        else:
-            await asyncio.sleep(0.2)
 
 @app.post("/core/start")
 def start_core_network():
@@ -264,115 +343,71 @@ async def live_packet_stream(websocket: WebSocket):
 @app.post("/gnb/stop")
 def stop_gnb():
     """
-    Stops the running gNB process using the stored PID.
-
-    This endpoint reads the PID from a file, checks if the process is alive,
-    sends a termination signal, and deletes the PID file.
+    Stops the gNB process using the GNodeB instance.
 
     Returns:
-        dict: A confirmation message that the process has been stopped.
+        dict: Status message and the PID of the stopped process.
 
     Raises:
-        HTTPException 404: If the PID file is missing or the process doesn't exist.
-        HTTPException 500: If there's a permission error or other failure.
+        HTTPException: If the gNB is not running or cannot be stopped.
     """
     try:
-        if not os.path.isfile(GNB_PID_FILE):
-            raise HTTPException(status_code=404, detail="No PID file found for gNB.")
-
-        with open(GNB_PID_FILE, "r") as f:
-            pid = int(f.read().strip())
-
-        try:
-            os.kill(pid, 0)
-        except ProcessLookupError:
-            raise HTTPException(status_code=404, detail="Process does not exist.")
-
-        os.kill(pid, signal.SIGTERM)
-        os.remove(GNB_PID_FILE)
-
+        pid = gnb.stop()
         return {"status": f"gNB process {pid} stopped"}
-
-    except ValueError:
-        raise HTTPException(status_code=500, detail="Invalid PID format in PID file.")
-    except PermissionError:
-        raise HTTPException(status_code=500, detail="No permission to stop the process.")
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to stop gNB: {str(e)}")
 
 @app.post("/gnb/start")
 async def start_gnb():
     """
-    Starts the gNB (gNodeB) process using the given config and executable.
-
-    This endpoint checks if the config and executable files exist, runs the gNB process,
-    and starts a background task to send its output to the `/ws/gnb` WebSocket.
+    Starts the gNB process using the GNodeB instance.
 
     Returns:
-        dict: A message confirming the start and the process PID.
+        dict: Status message and the PID of the started process.
 
-    Errors:
-        - 404 if the config file or executable is missing.
-        - 500 if there's an error starting the process.
+    Raises:
+        HTTPException: If the gNB fails to start.
     """
-    global gnb_process
-
     try:
-        if not os.path.isfile(GNB_CONFIG_PATH):
-            raise HTTPException(status_code=404, detail="Configuration file not found.")
-
-        if not Path(GNB_EXECUTABLE).is_file():
-            raise HTTPException(status_code=404, detail="gNB executable not found.")
-
-        gnb_process = subprocess.Popen(
-            [GNB_EXECUTABLE, "-O", GNB_CONFIG_PATH],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1
-        )
-
-        asyncio.create_task(stream_stdout_to_queue(gnb_process.stdout))
-
-        return {
-            "status": "gNB starting",
-            "pid": gnb_process.pid
-        }
-
+        await gnb.start()
+        return {"status": "gNB started", "pid": gnb.process.pid}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to start gNB: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.websocket("/ws/gnb")
 async def websocket_pcap(websocket: WebSocket):
     """
-    WebSocket route that streams gNB process output to connected clients.
+    WebSocket endpoint to stream real-time gNB logs to connected clients.
 
-    Once connected, this route sends log lines from the running gNB process
-    to the client in real time. If the gNB is not running or stops, the client
-    is notified and the connection is closed.
+    - Accepts the WebSocket connection.
+    - Sends stdout log lines from the gNB if it is running.
+    - Closes the connection if the gNB stops or the client disconnects.
 
     Args:
-        websocket (WebSocket): The WebSocket connection instance.
+        websocket (WebSocket): The active WebSocket connection.
     """
-    global gnb_process
     await websocket.accept()
 
-    if gnb_process is None or gnb_process.poll() is not None:
+    if not gnb.is_running():
         await websocket.send_text("gNB process is not running.")
         await websocket.close()
         return
 
     try:
         while True:
-            if gnb_process.poll() is not None:
+            if not gnb.is_running():
                 await websocket.send_text("gNB process ended.")
                 break
 
             try:
-                line = await asyncio.wait_for(gnb_stdout_queue.get(), timeout=1.0)
+                line = await asyncio.wait_for(gnb.stdout_queue.get(), timeout=1.0)
                 await websocket.send_text(line)
             except asyncio.TimeoutError:
-                pass
+                continue
 
     except WebSocketDisconnect:
         print("Client disconnected from /ws/gnb")
