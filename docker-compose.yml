@@ -50,6 +50,23 @@ services:
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
 
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdatabase
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb/data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
+      - DOCKER_INFLUXDB_INIT_ORG=oai
+      - DOCKER_INFLUXDB_INIT_BUCKET=oai_metrics
+      - DOCKER_INFLUXDB_INIT_TOKEN=t4-LvYHU3ITjvYPytZZb5nv3AJUXjKWH01izuuj01P73QujeTCJOvcxVCIMAqZAoY1lPu8oYQR26xRl0yhDNKA==
+volumes:
+  influxdb-storage:
+
 #  gnb_monitor:
 #    build:
 #      context: .
@@ -104,18 +121,3 @@ services:
 #    container_name: node_exporter
 #    ports:
 #      - "9100:9100"
-
-#  influxdb:
-#    image: influxdb:2.7
-#    container_name: influxdb
-#    ports:
-#      - "8086:8086"
-#    volumes:
-#      - ./influxdb/data:/var/lib/influxdb2
-#    environment:
-#      - DOCKER_INFLUXDB_INIT_MODE=setup
-#      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-#      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
-#      - DOCKER_INFLUXDB_INIT_ORG=oai
-#      - DOCKER_INFLUXDB_INIT_BUCKET=oai_metrics
-#      - DOCKER_INFLUXDB_INIT_TOKEN=mysecrettoken
