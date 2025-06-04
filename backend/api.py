@@ -1,15 +1,14 @@
-import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket
 from starlette.websockets import WebSocketDisconnect
 from backend.wireshark.packet_manager import capture_packets
+from backend.gnb_manager.gnodeb_manager import GNodeBManager
 import requests
 import yaml
 import os
+import asyncio
 import subprocess
 import time
 import logging
-from pathlib import Path
-import signal
 
 app = FastAPI()
 
@@ -17,6 +16,8 @@ PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
 GNB_EXECUTABLE = os.getenv("GNB_EXECUTABLE","/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem")
+
+gnb = GNodeBManager(config_path=GNB_CONFIG_PATH, executable_path=GNB_EXECUTABLE)
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -26,106 +27,6 @@ except Exception as e:
     config = {}
 
 services_map = {entry["name"]: entry["container"] for entry in config["core_services"]}
-
-class GNodeB:
-    """
-    Represents a gNodeB (gNB) instance with process control and real-time log handling.
-
-    Attributes:
-        process (subprocess.Popen): The currently running gNB process.
-        stdout_queue (asyncio.Queue): Queue for capturing stdout lines from the gNB.
-
-    Methods:
-        start(): Starts the gNB process using the given configuration.
-        stop(): Gracefully stops the gNB process using SIGTERM.
-        is_running(): Checks if the gNB process is still running.
-    """
-    def __init__(self):
-        self.process = None
-        self.stdout_queue = asyncio.Queue()
-
-    async def start(self):
-        """
-        Starts the gNB process using the provided configuration file.
-
-        - Verifies that the config file and executable exist.
-        - Launches the process using subprocess.
-        - Creates an asynchronous task to read and enqueue stdout lines.
-
-        Raises:
-            RuntimeError: If the gNB is already running.
-            FileNotFoundError: If the config or executable file does not exist.
-            Exception: For other process launch errors.
-        """
-        if self.process is not None:
-            raise RuntimeError("gNB already running")
-
-        if not Path(GNB_CONFIG_PATH).is_file():
-            raise FileNotFoundError("Configuration file not found.")
-
-        if not Path(GNB_EXECUTABLE).is_file():
-            raise FileNotFoundError("gNB executable not found.")
-
-        self.process = subprocess.Popen(
-            [GNB_EXECUTABLE, "-O", GNB_CONFIG_PATH],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1
-        )
-
-        asyncio.create_task(self._stream_stdout_to_queue())
-
-    async def _stream_stdout_to_queue(self):
-        """
-        Continuously reads the gNB process's stdout and puts each line into the stdout queue.
-
-        This is run as a background async task and allows real-time streaming of logs to WebSocket clients.
-        """
-        while True:
-            line = await asyncio.to_thread(self.process.stdout.readline)
-            if not line:
-                break
-            await self.stdout_queue.put(line)
-
-    def stop(self):
-        """
-        Stops the running gNB process by sending a SIGTERM signal.
-
-        Returns:
-            int: The PID of the process that was terminated.
-
-        Raises:
-            RuntimeError: If no gNB process is currently running.
-            PermissionError: If the process cannot be terminated due to permissions.
-            Exception: For any other stopping error.
-        """
-        if self.process is None:
-            raise RuntimeError("gNB not running")
-
-        try:
-            os.kill(self.process.pid, signal.SIGTERM)
-            pid = self.process.pid
-            self.process = None
-            return pid
-        except ProcessLookupError:
-            self.process = None
-            raise RuntimeError("Process does not exist.")
-        except PermissionError:
-            raise PermissionError("Permission denied.")
-        except Exception as e:
-            raise RuntimeError(str(e))
-
-    def is_running(self):
-        """
-        Checks if the gNB process is currently running.
-
-        Returns:
-            bool: True if the process is active, False otherwise.
-        """
-        return self.process is not None and self.process.poll() is None
-
-gnb = GNodeB()
 
 def query_prometheus_status_only(container_name: str):
     """
