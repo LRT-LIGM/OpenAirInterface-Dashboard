@@ -17,25 +17,35 @@ services:
       - prometheus
 
 
+
   fastapiapp:
+    privileged: true
     build:
       context: .
       dockerfile: backend/dockerfile
     container_name: fastapiapp
     ports:
-      - "8001:8000"
+      - "8001:8000" # [FastAPI] Expose FastAPI internal port 8000 on host port 8001 (http://localhost:8001)
+      - "2152:2152/udp" # [gNodeB] The gNodeB uses UDP port 2152 for the traffic
+    devices:
+    - /dev/bus/usb:/dev/bus/usb # [gNodeB] Allow USB access for the use of the gNodeB
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./config:/app/config
-      - /home/user/oai-cn5g:/home/user/oai-cn5g
+      - /var/run/docker.sock:/var/run/docker.sock # [Docker] Enable Docker socket access
+      - ./config:/app/config # [CoreNetwork5G] Mount app configuration files
+      - /home/user/oai-cn5g:/home/user/oai-cn5g # [CoreNetwork5G] Provide access to the CN5G to manage it
+      - /home/user/openairinterface5g:/home/user/openairinterface5g # [gNodeB] Provide access to gNodeB to manage it
+      - /etc/udev/rules.d:/etc/udev/rules.d:ro # [gNodeB] Ensure correct USB rules (read-only)
+      - /lib/udev/rules.d:/lib/udev/rules.d:ro # [gNodeB] Ensure correct USB permissions (read-only)
+      - /run/udev:/run/udev:ro # [gNodeB] Required for real-time device recognition (read-only)
     cap_add:
       - NET_ADMIN
     depends_on:
       - prometheus
     environment:
       - PROMETHEUS_URL=http://prometheus:9090
-      - FIVEG_CORE_DOCKER_COMPOSE_PATH=/home/user/oai-cn5g/docker-compose.yaml
-
+      - FIVEG_CORE_DOCK ER_COMPOSE_PATH=/home/user/oai-cn5g/docker-compose.yaml # [CoreNetwork] Path to CN5G docker-compose to manage CN5G
+      - GNB_CONFIG_PATH=/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml # [gNodeB] Path to gNB configuration file
+      - GNB_EXECUTABLE=/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem # [gNodeB] Path to gNB executable
 
 
   prometheus:

@@ -1,8 +1,11 @@
 from fastapi import FastAPI, HTTPException, WebSocket
+from starlette.websockets import WebSocketDisconnect
 from backend.wireshark.packet_manager import capture_packets
+from backend.gnb_manager.gnodeb_manager import GNodeBManager
 import requests
 import yaml
 import os
+import asyncio
 import subprocess
 import time
 import logging
@@ -11,6 +14,10 @@ app = FastAPI()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
+GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
+GNB_EXECUTABLE = os.getenv("GNB_EXECUTABLE","/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem")
+
+gnb = GNodeBManager(config_path=GNB_CONFIG_PATH, executable_path=GNB_EXECUTABLE)
 
 try:
     with open("config/monitored_services.yml", "r") as f:
@@ -52,7 +59,6 @@ def query_prometheus_status_only(container_name: str):
 
     except (KeyError, IndexError, ValueError) as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: Invalid Prometheus response. {e}")
-
 
 @app.post("/core/start")
 def start_core_network():
@@ -99,7 +105,6 @@ def start_core_network():
             detail=f"Unexpected error: {str(e)}",
             headers={"X-Error": "Unexpected Error"}
         )
-
 
 @app.post("/core/stop")
 def stop_core_network():
@@ -235,3 +240,75 @@ async def live_packet_stream(websocket: WebSocket):
     logging.info(f"New WebSocket connection: interface={interface}, bpf_filter={bpf_filter}")
 
     await capture_packets(websocket, interface=interface, bpf_filter=bpf_filter)
+
+@app.post("/gnb/stop")
+def stop_gnb():
+    """
+    Stops the gNB process using the GNodeB instance.
+
+    Returns:
+        dict: Status message and the PID of the stopped process.
+
+    Raises:
+        HTTPException: If the gNB is not running or cannot be stopped.
+    """
+    try:
+        pid = gnb.stop()
+        return {"status": f"gNB process {pid} stopped"}
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to stop gNB: {str(e)}")
+
+@app.post("/gnb/start")
+async def start_gnb():
+    """
+    Starts the gNB process using the GNodeB instance.
+
+    Returns:
+        dict: Status message and the PID of the started process.
+
+    Raises:
+        HTTPException: If the gNB fails to start.
+    """
+    try:
+        await gnb.start()
+        return {"status": "gNB started", "pid": gnb.process.pid}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.websocket("/ws/gnb")
+async def websocket_pcap(websocket: WebSocket):
+    """
+    WebSocket endpoint to stream real-time gNB logs to connected clients.
+
+    - Accepts the WebSocket connection.
+    - Sends stdout log lines from the gNB if it is running.
+    - Closes the connection if the gNB stops or the client disconnects.
+
+    Args:
+        websocket (WebSocket): The active WebSocket connection.
+    """
+    await websocket.accept()
+
+    if not gnb.is_running():
+        await websocket.send_text("gNB process is not running.")
+        await websocket.close()
+        return
+
+    try:
+        while True:
+            if not gnb.is_running():
+                await websocket.send_text("gNB process ended.")
+                break
+
+            try:
+                line = await asyncio.wait_for(gnb.stdout_queue.get(), timeout=1.0)
+                await websocket.send_text(line)
+            except asyncio.TimeoutError:
+                continue
+
+    except WebSocketDisconnect:
+        print("Client disconnected from /ws/gnb")
