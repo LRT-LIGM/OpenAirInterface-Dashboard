@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket
 from starlette.websockets import WebSocketDisconnect
 from backend.wireshark.packet_manager import capture_packets
@@ -5,7 +6,6 @@ from backend.gnb_manager.gnodeb_manager import GNodeBManager
 import requests
 import yaml
 import os
-import asyncio
 import subprocess
 import logging
 from pathlib import Path
