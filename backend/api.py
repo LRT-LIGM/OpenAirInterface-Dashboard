@@ -422,27 +422,35 @@ def push_metrics():
 
     return {"status": "Metrics pushed", "cpu": cpu_percent, "memory": mem_percent}
 
-@app.get("/metrics/latest")
-def get_latest_metrics():
+@app.websocket("/ws/metrics/latest")
+async def websocket_latest_metrics(websocket: WebSocket):
     """
-    Queries the latest CPU and memory usage metrics from the InfluxDB bucket for the past 5 minutes.
-    This is a test version to demonstrate InfluxDB integration with FastAPI.
+    WebSocket endpoint that streams the latest system usage metrics (CPU and memory)
+    from InfluxDB to the connected client in real time.
 
-    Returns:
-        dict: A dictionary containing the most recent CPU and memory usage values.
+    The endpoint connects to the InfluxDB database and repeatedly queries for the
+    most recent "system_usage" measurement over the last 5 minutes. The extracted
+    values are sent to the WebSocket client in JSON format every 5 seconds.
     """
-    query = f'''
-        from(bucket: "{INFLUXDB_BUCKET}")
-        |> range(start: -5m)
-        |> filter(fn: (r) => r["_measurement"] == "system_usage")
-        |> last()
-    '''
+    await websocket.accept()
+    try:
+        while True:
+            query = f'''
+                from(bucket: "{INFLUXDB_BUCKET}")
+                |> range(start: -5m)
+                |> filter(fn: (r) => r["_measurement"] == "system_usage")
+                |> last()
+            '''
 
-    tables = query_api.query(org=INFLUXDB_ORG, query=query)
-    result = {}
+            tables = query_api.query(org=INFLUXDB_ORG, query=query)
+            result = {}
 
-    for table in tables:
-        for record in table.records:
-            result[record.get_field()] = record.get_value()
+            for table in tables:
+                for record in table.records:
+                    result[record.get_field()] = record.get_value()
 
-    return result
+            await websocket.send_json(result)
+            await asyncio.sleep(5)  # envoie les données toutes les 5 secondes
+    except WebSocketDisconnect:
+        print("Client disconnected from WebSocket")
+
