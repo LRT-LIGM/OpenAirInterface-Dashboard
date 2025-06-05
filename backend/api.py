@@ -8,7 +8,6 @@ import os
 import asyncio
 import subprocess
 import logging
-import signal
 from pathlib import Path
 from backend.influx.influx_config import write_api, query_api, INFLUXDB_ORG, INFLUXDB_BUCKET
 import psutil
@@ -393,7 +392,7 @@ async def websocket_latest_metrics(websocket: WebSocket):
                     result[record.get_field()] = record.get_value()
 
             await websocket.send_json(result)
-            await asyncio.sleep(5)  # envoie les données toutes les 5 secondes
+            await asyncio.sleep(2)
     except WebSocketDisconnect:
         print("Client disconnected from WebSocket")
 
