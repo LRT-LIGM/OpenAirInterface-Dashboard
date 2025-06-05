@@ -326,7 +326,7 @@ def show_gnb_config():
     """
     try:
         if not CONFIG_DIR.exists():
-            raise HTTPException(status_code=404, detail="Configuration directory not found.")
+            raise HTTPException(status_code=500, detail="Invalid CONFIG_DIR: directory does not exist.")
 
         files = [
             f.name for f in CONFIG_DIR.iterdir()
