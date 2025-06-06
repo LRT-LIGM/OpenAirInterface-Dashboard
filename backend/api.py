@@ -1,3 +1,4 @@
+from pathlib import Path
 from fastapi import FastAPI, HTTPException, WebSocket
 from starlette.websockets import WebSocketDisconnect
 from backend.wireshark.packet_manager import capture_packets
@@ -16,6 +17,7 @@ PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
 GNB_EXECUTABLE = os.getenv("GNB_EXECUTABLE","/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem")
+CONFIG_DIR = Path(os.getenv("CONFIG_DIR", "/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF"))
 
 gnb = GNodeBManager(config_path=GNB_CONFIG_PATH, executable_path=GNB_EXECUTABLE)
 
@@ -312,3 +314,26 @@ async def websocket_pcap(websocket: WebSocket):
 
     except WebSocketDisconnect:
         print("Client disconnected from /ws/gnb")
+
+@app.get("/gnb/config")
+def show_gnb_config():
+    """
+    Return a list of all .yaml or .conf files that contain 'gnb' in their name
+    from the predefined configuration directory.
+
+    Returns:
+        dict: A dictionary with a list of matching file names.
+    """
+    try:
+        if not CONFIG_DIR.exists():
+            raise HTTPException(status_code=500, detail="Invalid CONFIG_DIR: directory does not exist.")
+
+        files = [
+            f.name for f in CONFIG_DIR.iterdir()
+            if f.is_file() and "gnb" in f.name.lower() and f.suffix in [".yaml", ".conf"]
+        ]
+
+        return {"files": files}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list config files: {str(e)}")
