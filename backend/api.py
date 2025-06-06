@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI, HTTPException, WebSocket
 from starlette.websockets import WebSocketDisconnect
 from backend.wireshark.packet_manager import capture_packets
@@ -5,10 +6,13 @@ from backend.gnb_manager.gnodeb_manager import GNodeBManager
 import requests
 import yaml
 import os
-import asyncio
 import subprocess
-import time
 import logging
+from pathlib import Path
+from backend.influx.influx_config import write_api, query_api, INFLUXDB_ORG, INFLUXDB_BUCKET
+import psutil
+import time
+from influxdb_client import Point
 
 app = FastAPI()
 
@@ -16,6 +20,7 @@ PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
 FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/home/user/oai-cn5g/docker-compose.yaml")
 GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
 GNB_EXECUTABLE = os.getenv("GNB_EXECUTABLE","/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem")
+CONFIG_DIR = Path(os.getenv("CONFIG_DIR", "/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF"))
 
 gnb = GNodeBManager(config_path=GNB_CONFIG_PATH, executable_path=GNB_EXECUTABLE)
 
@@ -312,3 +317,82 @@ async def websocket_pcap(websocket: WebSocket):
 
     except WebSocketDisconnect:
         print("Client disconnected from /ws/gnb")
+
+@app.get("/gnb/config")
+def show_gnb_config():
+    """
+    Return a list of all .yaml or .conf files that contain 'gnb' in their name
+    from the predefined configuration directory.
+
+    Returns:
+        dict: A dictionary with a list of matching file names.
+    """
+    try:
+        if not CONFIG_DIR.exists():
+            raise HTTPException(status_code=404, detail="Configuration directory not found.")
+
+        files = [
+            f.name for f in CONFIG_DIR.iterdir()
+            if f.is_file() and "gnb" in f.name.lower() and f.suffix in [".yaml", ".conf"]
+        ]
+
+        return {"files": files}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list config files: {str(e)}")
+
+@app.post("/metrics/push")
+def push_metrics():
+    """
+    Collects current system CPU and memory usage metrics and writes them to the InfluxDB bucket.
+    This is a test version to demonstrate InfluxDB integration with FastAPI.
+
+    Returns:
+        dict: A confirmation message including the pushed CPU and memory usage percentages.
+    """
+    cpu_percent = psutil.cpu_percent()
+    mem = psutil.virtual_memory()
+    mem_percent = mem.percent
+
+    point = (
+        Point("system_usage")
+        .field("cpu", cpu_percent)
+        .field("memory", mem_percent)
+    )
+
+    write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
+
+    return {"status": "Metrics pushed", "cpu": cpu_percent, "memory": mem_percent}
+
+@app.websocket("/ws/metrics/latest")
+async def websocket_latest_metrics(websocket: WebSocket):
+    """
+    WebSocket endpoint that streams the latest system usage metrics (CPU and memory)
+    from InfluxDB to the connected client in real time.
+
+    The endpoint connects to the InfluxDB database and repeatedly queries for the
+    most recent "system_usage" measurement over the last 5 minutes. The extracted
+    values are sent to the WebSocket client in JSON format every 5 seconds.
+    """
+    await websocket.accept()
+    try:
+        while True:
+            query = f'''
+                from(bucket: "{INFLUXDB_BUCKET}")
+                |> range(start: -5m)
+                |> filter(fn: (r) => r["_measurement"] == "system_usage")
+                |> last()
+            '''
+
+            tables = query_api.query(org=INFLUXDB_ORG, query=query)
+            result = {}
+
+            for table in tables:
+                for record in table.records:
+                    result[record.get_field()] = record.get_value()
+
+            await websocket.send_json(result)
+            await asyncio.sleep(2)
+    except WebSocketDisconnect:
+        print("Client disconnected from WebSocket")
+
