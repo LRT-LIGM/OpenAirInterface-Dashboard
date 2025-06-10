@@ -1,5 +1,4 @@
-from pathlib import Path
-from fastapi import FastAPI, HTTPException, WebSocket
+from fastapi import FastAPI, HTTPException, WebSocket, Query
 from starlette.websockets import WebSocketDisconnect
 from backend.wireshark.packet_manager import capture_packets
 from backend.gnb_manager.gnodeb_manager import GNodeBManager
@@ -10,10 +9,8 @@ import asyncio
 import subprocess
 import logging
 from pathlib import Path
-from backend.influx.influx_config import write_api, query_api, INFLUXDB_ORG, INFLUXDB_BUCKET
-import psutil
+from backend.influx.influx_config import  query_api, INFLUXDB_ORG, INFLUXDB_BUCKET
 import time
-from influxdb_client import Point
 
 app = FastAPI()
 
@@ -342,58 +339,59 @@ def show_gnb_config():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list config files: {str(e)}")
 
-@app.post("/metrics/push")
-def push_metrics():
+@app.websocket("/ws/metrics")
+async def websocket_latest_metrics(
+    websocket: WebSocket,
+    metric_name: str = Query(..., description="The name of the metric to fetch"),
+    ue_id: str = Query(..., description="The ID of the User Equipment (UE)")
+):
     """
-    Collects current system CPU and memory usage metrics and writes them to the InfluxDB bucket.
-    This is a test version to demonstrate InfluxDB integration with FastAPI.
+    WebSocket endpoint to stream the latest metric value for a given UE from InfluxDB in real time.
 
-    Returns:
-        dict: A confirmation message including the pushed CPU and memory usage percentages.
-    """
-    cpu_percent = psutil.cpu_percent()
-    mem = psutil.virtual_memory()
-    mem_percent = mem.percent
+    Parameters:
+        websocket (WebSocket): The WebSocket connection instance.
+        metric_name (str): The metric to retrieve (e.g., 'cpu', 'memory').
+        ue_id (str): Identifier of the User Equipment (UE) to filter the metric.
 
-    point = (
-        Point("system_usage")
-        .field("cpu", cpu_percent)
-        .field("memory", mem_percent)
-    )
-
-    write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
-
-    return {"status": "Metrics pushed", "cpu": cpu_percent, "memory": mem_percent}
-
-@app.websocket("/ws/metrics/latest")
-async def websocket_latest_metrics(websocket: WebSocket):
-    """
-    WebSocket endpoint that streams the latest system usage metrics (CPU and memory)
-    from InfluxDB to the connected client in real time.
-
-    The endpoint connects to the InfluxDB database and repeatedly queries for the
-    most recent "system_usage" measurement over the last 5 minutes. The extracted
-    values are sent to the WebSocket client in JSON format every 5 seconds.
+    Behavior:
+        - Accepts the WebSocket connection.
+        - Queries InfluxDB every 2 seconds for the most recent metric value within the last 5 minutes.
+        - Sends the metric to the client only if it's newer than the last sent value.
+        - Closes cleanly upon client disconnect.
     """
     await websocket.accept()
+    last_sent_time = None
+
     try:
         while True:
             query = f'''
                 from(bucket: "{INFLUXDB_BUCKET}")
                 |> range(start: -5m)
-                |> filter(fn: (r) => r["_measurement"] == "system_usage")
+                |> filter(fn: (r) => 
+                    r["_measurement"] == "system_usage" and
+                    r["ue_id"] == "{ue_id}" and
+                    r["_field"] == "{metric_name}"
+                )
                 |> last()
             '''
 
             tables = query_api.query(org=INFLUXDB_ORG, query=query)
-            result = {}
 
             for table in tables:
                 for record in table.records:
-                    result[record.get_field()] = record.get_value()
+                    timestamp = record.get_time()
+                    value = record.get_value()
 
-            await websocket.send_json(result)
+                    if last_sent_time is None or timestamp > last_sent_time:
+                        await websocket.send_json({
+                            "ue_id": ue_id,
+                            "metric": metric_name,
+                            "value": value,
+                            "timestamp": str(timestamp)
+                        })
+                        last_sent_time = timestamp
+
             await asyncio.sleep(2)
-    except WebSocketDisconnect:
-        print("Client disconnected from WebSocket")
 
+    except WebSocketDisconnect:
+        pass
