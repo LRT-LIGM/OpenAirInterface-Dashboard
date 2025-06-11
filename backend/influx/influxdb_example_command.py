@@ -18,7 +18,7 @@ write_api = client.write_api(write_options=WriteOptions(batch_size=1))
 def push_fake_metrics_loop():
     while True:
         cpu_percent = psutil.cpu_percent()
-        mem_percent = psutil.virtual_memory().percent
+        ram_percent = psutil.virtual_memory().percent
 
         point_cpu = (
             Point("system_usage")
@@ -27,15 +27,15 @@ def push_fake_metrics_loop():
             .tag("metric_name", "cpu")
         )
 
-        point_mem = (
+        point_ram = (
             Point("system_usage")
-            .field("memory", mem_percent)
+            .field("ram", ram_percent)
             .tag("ue_id", "UE_001")
-            .tag("metric_name", "memory")
+            .tag("metric_name", "ram")
         )
 
-        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=[point_cpu, point_mem])
-        print(f"[PUSH] CPU={cpu_percent}%, MEM={mem_percent}%")
+        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=[point_cpu, point_ram])
+        print(f"[PUSH] CPU={cpu_percent}%, MEM={ram_percent}%")
 
         time.sleep(2)
 
@@ -47,5 +47,5 @@ if __name__ == "__main__":
 #and connect to the websocket at :
         # ws://localhost:8001/ws/metrics?metric_name=cpu&ue_id=UE_001
         # or
-        # ws://localhost:8001/ws/metrics?metric_name=memory&ue_id=UE_001
+        # ws://localhost:8001/ws/metrics?metric_name=ram&ue_id=UE_001
 

@@ -346,27 +346,51 @@ async def websocket_latest_metrics(
     ue_id: str = Query(..., description="The ID of the User Equipment (UE)")
 ):
     """
-    WebSocket endpoint to stream the latest metric value for a given UE from InfluxDB in real time.
+    WebSocket endpoint to stream real-time metrics from InfluxDB for a specific User Equipment (UE).
 
-    Parameters:
-        websocket (WebSocket): The WebSocket connection instance.
-        metric_name (str): The metric to retrieve (e.g., 'cpu', 'memory').
-        ue_id (str): Identifier of the User Equipment (UE) to filter the metric.
+    Query Parameters:
+    - metric_name (str): The name of the metric to retrieve (e.g., "cpu", "memory").
+    - ue_id (str): The identifier of the User Equipment.
 
     Behavior:
-        - Accepts the WebSocket connection.
-        - Queries InfluxDB every 2 seconds for the most recent metric value within the last 5 minutes.
-        - Sends the metric to the client only if it's newer than the last sent value.
-        - Closes cleanly upon client disconnect.
+    - Accepts a WebSocket connection.
+    - Every 2 seconds:
+        - Queries InfluxDB for the most recent data point newer than the last sent timestamp.
+        - Uses a dynamic Flux filter on '_time' to avoid retrieving duplicate or old data.
+        - Sends the latest data point to the WebSocket client if it has not been sent before
+          (based on timestamp or value change).
+    - Handles WebSocket disconnects gracefully.
+    - Logs basic events and handles InfluxDB query errors with retries.
+
+    Notes:
+    - Initially, queries data from the last 10 seconds.
+    - Subsequent queries filter for data points with '_time' strictly greater than the last sent timestamp.
+    - This approach prevents sending duplicate data and reduces unnecessary data transfer.
+    - The use of both timestamp and value comparison ensures only new or changed data is sent.
+
+    Raises:
+    - Handles and logs InfluxDB query exceptions internally without crashing the connection.
+    - Handles WebSocketDisconnect to cleanly close the connection.
     """
+
     await websocket.accept()
     last_sent_time = None
+    last_sent_value = None
+    initialized = False
 
     try:
         while True:
+            # Build the query depending on whether we already have a last piece of data sent
+            if last_sent_time is None:
+                # First query, take data from the last 10 seconds
+                time_filter = 'range(start: -10s)'
+            else:
+                # For the following, we filter on _time > last_sent_time to only take new ones
+                time_filter = f'range(start: {last_sent_time.isoformat()}) |> filter(fn: (r) => r._time > time(v: "{last_sent_time.isoformat()}"))'
+
             query = f'''
                 from(bucket: "{INFLUXDB_BUCKET}")
-                |> range(start: -5m)
+                |> {time_filter}
                 |> filter(fn: (r) => 
                     r["_measurement"] == "system_usage" and
                     r["ue_id"] == "{ue_id}" and
@@ -375,23 +399,37 @@ async def websocket_latest_metrics(
                 |> last()
             '''
 
-            tables = query_api.query(org=INFLUXDB_ORG, query=query)
+            try:
+                tables = query_api.query(org=INFLUXDB_ORG, query=query)
+            except Exception as e:
+                print(f"[ERROR] InfluxDB query failed: {e}")
+                await asyncio.sleep(2)
+                continue
 
             for table in tables:
                 for record in table.records:
                     timestamp = record.get_time()
                     value = record.get_value()
 
-                    if last_sent_time is None or timestamp > last_sent_time:
-                        await websocket.send_json({
-                            "ue_id": ue_id,
-                            "metric": metric_name,
-                            "value": value,
-                            "timestamp": str(timestamp)
-                        })
+                    # If we have already initialized, we only send if new data
+                    if initialized:
+                        if (timestamp != last_sent_time) or (value != last_sent_value):
+                            await websocket.send_json({
+                                "ue_id": ue_id,
+                                "metric": metric_name,
+                                "value": value,
+                                "timestamp": str(timestamp)
+                            })
+                            last_sent_time = timestamp
+                            last_sent_value = value
+                            print(f"[SEND] {ue_id} {metric_name} = {value} at {timestamp}")
+                    else:
+                        # First time, we memorize but we don't send
                         last_sent_time = timestamp
+                        last_sent_value = value
+                        initialized = True
 
             await asyncio.sleep(2)
 
     except WebSocketDisconnect:
-        pass
+        print(f"[DISCONNECT] WebSocket closed for UE {ue_id}, metric {metric_name}")
