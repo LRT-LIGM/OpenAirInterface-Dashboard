@@ -12,6 +12,9 @@ from pathlib import Path
 from backend.influx.influx_config import  query_api, INFLUXDB_ORG, INFLUXDB_BUCKET
 import time
 
+logger = logging.getLogger("metrics_websocket")
+logging.basicConfig(level=logging.INFO)
+
 app = FastAPI()
 
 PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus:9090")
@@ -19,6 +22,7 @@ FIVEG_CORE_DOCKER_COMPOSE_PATH = os.getenv("FIVEG_CORE_DOCKER_COMPOSE_PATH", "/h
 GNB_CONFIG_PATH = os.getenv("GNB_CONFIG_PATH","/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml")
 GNB_EXECUTABLE = os.getenv("GNB_EXECUTABLE","/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem")
 CONFIG_DIR = Path(os.getenv("CONFIG_DIR", "/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF"))
+METRIC_POLL_INTERVAL_SECONDS = int(os.getenv("METRIC_POLL_INTERVAL_SECONDS", 2))
 
 gnb = GNodeBManager(config_path=GNB_CONFIG_PATH, executable_path=GNB_EXECUTABLE)
 
@@ -349,34 +353,33 @@ async def websocket_latest_metrics(
     WebSocket endpoint to stream real-time metrics from InfluxDB for a specific User Equipment (UE).
 
     Query Parameters:
-    - metric_name (str): The name of the metric to retrieve (e.g., "cpu", "memory").
+    - metric_name (str): The name of the metric to retrieve (e.g., "cpu", "ram").
     - ue_id (str): The identifier of the User Equipment.
 
     Behavior:
     - Accepts a WebSocket connection.
-    - Every 2 seconds:
-        - Queries InfluxDB for the most recent data point newer than the last sent timestamp.
-        - Uses a dynamic Flux filter on '_time' to avoid retrieving duplicate or old data.
-        - Sends the latest data point to the WebSocket client if it has not been sent before
-          (based on timestamp or value change).
-    - Handles WebSocket disconnects gracefully.
-    - Logs basic events and handles InfluxDB query errors with retries.
+    - Polls InfluxDB every `METRIC_POLL_INTERVAL_SECONDS` seconds.
+    - On the first request, queries data from the last 10 seconds.
+    - On subsequent requests, fetches only new data with `_time` strictly greater than the last sent timestamp.
+    - Sends the latest data point to the client if a new value is available.
+    - Skips sending if no newer value is present since the last transmission.
+
+    Implementation Details:
+    - Uses Flux queries with time-based filtering to avoid duplicate or stale data.
+    - Remembers the last sent timestamp and only pushes data with a more recent timestamp.
+    - Ensures efficient use of bandwidth and reduces redundant WebSocket messages.
+
+    Error Handling:
+    - Logs and returns an error message to the client if the InfluxDB query fails.
+    - Gracefully closes the WebSocket if the client disconnects.
 
     Notes:
-    - Initially, queries data from the last 10 seconds.
-    - Subsequent queries filter for data points with '_time' strictly greater than the last sent timestamp.
-    - This approach prevents sending duplicate data and reduces unnecessary data transfer.
-    - The use of both timestamp and value comparison ensures only new or changed data is sent.
-
-    Raises:
-    - Handles and logs InfluxDB query exceptions internally without crashing the connection.
-    - Handles WebSocketDisconnect to cleanly close the connection.
+    - This endpoint is optimized for time-series streaming with minimal latency.
+    - Assumes that each new value in InfluxDB has a unique and increasing `_time` field.
     """
 
     await websocket.accept()
     last_sent_time = None
-    last_sent_value = None
-    initialized = False
 
     try:
         while True:
@@ -399,12 +402,15 @@ async def websocket_latest_metrics(
                 |> last()
             '''
 
+            loop = asyncio.get_running_loop()
             try:
-                tables = query_api.query(org=INFLUXDB_ORG, query=query)
+                tables = await loop.run_in_executor(None, query_api.query, query, INFLUXDB_ORG)
+
             except Exception as e:
-                print(f"[ERROR] InfluxDB query failed: {e}")
-                await asyncio.sleep(2)
-                continue
+                logger.error(f"InfluxDB query failed: {e}")
+                await websocket.send_json({"error": "Internal server error while querying metrics."})
+                await websocket.close(code=1011)  # 1011: Internal Error
+                break
 
             for table in tables:
                 for record in table.records:
@@ -412,24 +418,17 @@ async def websocket_latest_metrics(
                     value = record.get_value()
 
                     # If we have already initialized, we only send if new data
-                    if initialized:
-                        if (timestamp != last_sent_time) or (value != last_sent_value):
-                            await websocket.send_json({
-                                "ue_id": ue_id,
-                                "metric": metric_name,
-                                "value": value,
-                                "timestamp": str(timestamp)
-                            })
-                            last_sent_time = timestamp
-                            last_sent_value = value
-                            print(f"[SEND] {ue_id} {metric_name} = {value} at {timestamp}")
-                    else:
-                        # First time, we memorize but we don't send
+                    if (last_sent_time is None) or (timestamp > last_sent_time):
+                        await websocket.send_json({
+                            "ue_id": ue_id,
+                            "metric": metric_name,
+                            "value": value,
+                            "timestamp": str(timestamp)
+                        })
                         last_sent_time = timestamp
-                        last_sent_value = value
-                        initialized = True
+                        logger.info(f"[SEND] {ue_id} {metric_name} = {value} at {timestamp}")
 
-            await asyncio.sleep(2)
+            await asyncio.sleep(METRIC_POLL_INTERVAL_SECONDS)
 
     except WebSocketDisconnect:
-        print(f"[DISCONNECT] WebSocket closed for UE {ue_id}, metric {metric_name}")
+        logger.info(f"[DISCONNECT] WebSocket closed for UE {ue_id}, metric {metric_name}")

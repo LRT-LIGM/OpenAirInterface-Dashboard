@@ -1,7 +1,7 @@
 import psutil
 import time
 from influxdb_client import InfluxDBClient, Point, WriteOptions
-from influx_config import INFLUXDB_BUCKET, INFLUXDB_ORG, INFLUXDB_TOKEN
+from backend.influx.influx_config import INFLUXDB_BUCKET, INFLUXDB_ORG, INFLUXDB_TOKEN
 
 INFLUXDB_URL = "http://localhost:8086"
 
@@ -43,7 +43,8 @@ def push_fake_metrics_loop():
 if __name__ == "__main__":
     push_fake_metrics_loop()
 
-#start with : python3 influxdb_example_command.py
+#start with : PYTHONPATH=. python3 tests/influxdb_example_command.py
+
 #and connect to the websocket at :
         # ws://localhost:8001/ws/metrics?metric_name=cpu&ue_id=UE_001
         # or
