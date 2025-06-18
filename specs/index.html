@@ -1,0 +1,2739 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://lrt-ligm.github.io/OpenAirInterface-Dashboard/specs/">
+      
+      
+        <link rel="prev" href="../analysis/">
+      
+      
+        <link rel="next" href="../intern-roadmap/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Specification - OAI Dashboard Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#specification" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OAI Dashboard Docs" class="md-header__button md-logo" aria-label="OAI Dashboard Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OAI Dashboard Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Specification
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/LRT-LIGM/OpenAirInterface-Dashboard" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OAI Dashboard Docs" class="md-nav__button md-logo" aria-label="OAI Dashboard Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OAI Dashboard Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/LRT-LIGM/OpenAirInterface-Dashboard" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Usage Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Analysis of competitor
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Specification
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Specification
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#route-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Route Table
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gnodeb-selector" class="md-nav__link">
+    <span class="md-ellipsis">
+      gNodeB Selector
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="gNodeB Selector">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gnb-selector-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      gNB selector Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="gNB selector Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbs" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnbs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gnodeb-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      gNodeB Information
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="gNodeB Information">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gnodeb-information-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      gNodeB information Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="gNodeB information Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbidstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnb/{id}/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbidsdr" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnb/{id}/sdr
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbidip" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnb/{id}/ip
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbidreboot" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/{id}/reboot
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5g-core-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      5G Core Network
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5G Core Network">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5g-core-network-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      5G Core Network Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5G Core Network Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-corestatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-corestart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /core/start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-corerestart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /core/restart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-corestop" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /core/stop
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-generation-nodeb" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Generation NodeB
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Next Generation NodeB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#next-generation-nodeb-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Generation NodeB Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Next Generation NodeB Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbstop" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/stop
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbrestart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/restart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbconfiguration" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnb/configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbconfiguration" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsgnblogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/gnb/logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbreset" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/reset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbcompile" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/compile
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-of-the-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary of the Network
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Summary of the Network">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#summary-of-the-network-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary of the Network Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Summary of the Network Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-summarygnb" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /summary/gnb
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-summaryue" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /summary/ue
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsavgdownlink" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/avgdownlink
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsavguplink" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/avguplink
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network Status
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Network Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core functions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-status-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network Status Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Network Status Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-corenssfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/nssf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreausfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/ausf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-corenrfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/nrf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coresmfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/smf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreudrstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/udr/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreupfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/upf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreamfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/amf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreudmstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/udm/status
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      External service
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="External service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip-multimedia-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      IP Multimedia subsystem
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ims-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      IMS Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IMS Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-coreimsstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/ims/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bandwidth-testing-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bandwidth Testing Tool
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#measure-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Measure Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Measure Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-bandwidthuplinkstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /bandwidth/uplink/start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-bandwidthdownlinkstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /bandwidth/downlink/start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-bandwidthstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /bandwidth/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-bandwidthcommand" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /bandwidth/command
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#radio-access-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      Radio Access Network
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Radio Access Network">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ran-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      RAN Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RAN Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-ranstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /ran/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-ranconfiguration" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /ran/configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsranbitrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/ran/bitrate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-equipment" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Equipment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User Equipment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#user-equipment-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Equipment Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User Equipment Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsue_idmetric" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/{ue_id}/{metric}
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-flow-wireshark-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      Message Flow / Wireshark View
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Message Flow / Wireshark View">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wspcap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/pcap
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-pcap" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /pcap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../intern-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intern Roadmap
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configuration of Monitored Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packet_capture_features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Packet capture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gnodeb_doc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GNodeB Implementation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backend API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#route-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Route Table
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gnodeb-selector" class="md-nav__link">
+    <span class="md-ellipsis">
+      gNodeB Selector
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="gNodeB Selector">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gnb-selector-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      gNB selector Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="gNB selector Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbs" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnbs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gnodeb-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      gNodeB Information
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="gNodeB Information">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gnodeb-information-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      gNodeB information Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="gNodeB information Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbidstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnb/{id}/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbidsdr" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnb/{id}/sdr
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbidip" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnb/{id}/ip
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbidreboot" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/{id}/reboot
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5g-core-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      5G Core Network
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5G Core Network">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5g-core-network-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      5G Core Network Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5G Core Network Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-corestatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-corestart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /core/start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-corerestart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /core/restart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-corestop" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /core/stop
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-generation-nodeb" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Generation NodeB
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Next Generation NodeB">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#next-generation-nodeb-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Generation NodeB Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Next Generation NodeB Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbstop" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/stop
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbrestart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/restart
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-gnbconfiguration" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /gnb/configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbconfiguration" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsgnblogs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/gnb/logs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbreset" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/reset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-gnbcompile" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /gnb/compile
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-of-the-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary of the Network
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Summary of the Network">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#summary-of-the-network-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary of the Network Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Summary of the Network Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-summarygnb" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /summary/gnb
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-summaryue" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /summary/ue
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsavgdownlink" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/avgdownlink
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsavguplink" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/avguplink
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network Status
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Network Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core functions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-status-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network Status Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Network Status Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-corenssfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/nssf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreausfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/ausf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-corenrfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/nrf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coresmfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/smf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreudrstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/udr/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreupfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/upf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreamfstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/amf/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-coreudmstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/udm/status
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      External service
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="External service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ip-multimedia-subsystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      IP Multimedia subsystem
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ims-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      IMS Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IMS Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-coreimsstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /core/ims/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bandwidth-testing-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bandwidth Testing Tool
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#measure-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Measure Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Measure Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-bandwidthuplinkstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /bandwidth/uplink/start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-bandwidthdownlinkstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      POST /bandwidth/downlink/start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-bandwidthstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /bandwidth/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-bandwidthcommand" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /bandwidth/command
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#radio-access-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      Radio Access Network
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Radio Access Network">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ran-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      RAN Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RAN Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-ranstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /ran/status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-ranconfiguration" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /ran/configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsranbitrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/ran/bitrate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-equipment" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Equipment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User Equipment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#user-equipment-routes-detailed" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Equipment Routes detailed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User Equipment Routes detailed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wsue_idmetric" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/{ue_id}/{metric}
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-flow-wireshark-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      Message Flow / Wireshark View
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Message Flow / Wireshark View">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#websocket-wspcap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Websocket /ws/pcap
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-pcap" class="md-nav__link">
+    <span class="md-ellipsis">
+      GET /pcap
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="specification">Specification<a class="headerlink" href="#specification" title="Permanent link">&para;</a></h1>
+<h2 id="route-table">Route Table<a class="headerlink" href="#route-table" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Method</th>
+<th style="text-align: center;">Path</th>
+<th style="text-align: center;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-gnbs"><code>/gnbs</code></a></td>
+<td style="text-align: center;">Lists all available gNBs with their id</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-gnbidstatus"><code>/gnb/{id}/status</code></a></td>
+<td style="text-align: center;">Retrieves gNB status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-gnbidsdr"><code>/gnb/{id}/sdr</code></a></td>
+<td style="text-align: center;">Retrieves the gNB sdr</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-gnbidip"><code>/gnb/{id}/ip</code></a></td>
+<td style="text-align: center;">Retrieves the gNB ip</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-gnbidreboot"><code>/gnb/{id}/reboot</code></a></td>
+<td style="text-align: center;">Reboots a specific gNB</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-corestatus"><code>/core/status</code></a></td>
+<td style="text-align: center;">Retrieves the status of the 5G core network</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-corestart"><code>/core/start</code></a></td>
+<td style="text-align: center;">Starts the 5G core</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-corerestart"><code>/core/restart</code></a></td>
+<td style="text-align: center;">Restarts the 5G core</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-corestop"><code>/core/stop</code></a></td>
+<td style="text-align: center;">Stops the 5G core</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-gnbstart"><code>/gnb/start</code></a></td>
+<td style="text-align: center;">Starts the gNB</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-gnbstop"><code>/gnb/stop</code></a></td>
+<td style="text-align: center;">Stops the gNB</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-gnbrestart"><code>/gnb/restart</code></a></td>
+<td style="text-align: center;">Restarts the gNB</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-gnbconfiguration"><code>/gnb/configuration</code></a></td>
+<td style="text-align: center;">Retrieves the current gNB configuration</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-gnbconfiguration"><code>/gnb/configuration</code></a></td>
+<td style="text-align: center;">Saves a new gNB configuration</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>Websocket</code></td>
+<td style="text-align: center;"><a href="#websocket-wsgnblogs"><code>/ws/gnb/logs</code></a></td>
+<td style="text-align: center;">Retrieves gNB logs (runtime/compilation)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-gnbreset"><code>/gnb/reset</code></a></td>
+<td style="text-align: center;">Resets gNB configuration to default</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-gnbcompile"><code>/gnb/compile</code></a></td>
+<td style="text-align: center;">Compiles the gNB source code</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-summarygnb"><code>/summary/gnb</code></a></td>
+<td style="text-align: center;">Lists gNBs connected to the core</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-summaryue"><code>/summary/ue</code></a></td>
+<td style="text-align: center;">Lists UEs connected to the core</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-corenssfstatus"><code>/core/nssf/status</code></a></td>
+<td style="text-align: center;">Retrieves the NSSF status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-coreausfstatus"><code>/core/ausf/status</code></a></td>
+<td style="text-align: center;">Retrieves the AUSF status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-corenrfstatus"><code>/core/nrf/status</code></a></td>
+<td style="text-align: center;">Retrieves the NRF status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-coresmfstatus"><code>/core/smf/status</code></a></td>
+<td style="text-align: center;">Retrieves the SMF status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-coreudrstatus"><code>/core/udr/status</code></a></td>
+<td style="text-align: center;">Retrieves the UDR status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-coreupfstatus"><code>/core/upf/status</code></a></td>
+<td style="text-align: center;">Retrieves the UPF status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-coreamfstatus"><code>/core/amf/status</code></a></td>
+<td style="text-align: center;">Retrieves the AMF status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-coreudmstatus"><code>/core/udm/status</code></a></td>
+<td style="text-align: center;">Retrieves the UDM status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-coreimsstatus"><code>/core/ims/status</code></a></td>
+<td style="text-align: center;">Retrieves the status of the IMS service</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-bandwidthuplinkstart"><code>/bandwidth/uplink/start</code></a></td>
+<td style="text-align: center;">Starts the iPerf server for uplink testing</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>POST</code></td>
+<td style="text-align: center;"><a href="#post-bandwidthdownlinkstart"><code>/bandwidth/downlink/start</code></a></td>
+<td style="text-align: center;">Launches the iPerf client for downlink testing</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-bandwidthstatus"><code>/bandwidth/status</code></a></td>
+<td style="text-align: center;">Retrieves the status of the bandwidth testing tool</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-bandwidthcommand"><code>/bandwidth/command</code></a></td>
+<td style="text-align: center;">Generates the iPerf command for UE execution</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-ranstatus"><code>/ran/status</code></a></td>
+<td style="text-align: center;">Retrieves RAN status</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-ranconfiguration"><code>/ran/configuration</code></a></td>
+<td style="text-align: center;">Retrieves current RAN configuration</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: center;"><a href="#get-pcap"><code>/pcap</code></a></td>
+<td style="text-align: center;">Retrieves captured packets (Wireshark / TShark)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>Websocket</code></td>
+<td style="text-align: center;"><a href="#websocket-wsavgdownlink"><code>/ws/avgdownlink</code></a></td>
+<td style="text-align: center;">Real-time average stream of downlink throughput</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>Websocket</code></td>
+<td style="text-align: center;"><a href="#websocket-wsavguplink"><code>/ws/avguplink</code></a></td>
+<td style="text-align: center;">Real-time average stream of uplink throughput</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>Websocket</code></td>
+<td style="text-align: center;"><a href="#websocket-wsranbitrate"><code>/ws/ran/bitrate</code></a></td>
+<td style="text-align: center;">Real-time stream of RAN bitrate</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>Websocket</code></td>
+<td style="text-align: center;"><a href="#websocket-wsue_idmetric"><code>/ws/{ue_id}/{metric}</code></a></td>
+<td style="text-align: center;">Real-time stream for a specific UE metric</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>Websocket</code></td>
+<td style="text-align: center;"><a href="#websocket-wspcap"><code>/ws/pcap</code></a></td>
+<td style="text-align: center;">Real-time stream of captured packets (Wireshark)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gnodeb-selector">gNodeB Selector<a class="headerlink" href="#gnodeb-selector" title="Permanent link">&para;</a></h2>
+<p>We would like to define a widget, <code>widget_gnbs_selector</code>, allow the user to select which gNB (gNodeB Selector) to monitor and control.</p>
+<p>The <code>widget_gnbs_selector</code> should display the selected gNB name and, when clicked, expand to reveal all available gNBs.</p>
+<h3 id="gnb-selector-routes-detailed">gNB selector Routes detailed<a class="headerlink" href="#gnb-selector-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="get-gnbs">GET <code>/gnbs</code><a class="headerlink" href="#get-gnbs" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_gnbs</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /gnbs  </span>
+<span class="sd">    Returns a list of all available gNBs with their names and ID.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<hr />
+<h2 id="gnodeb-information">gNodeB Information<a class="headerlink" href="#gnodeb-information" title="Permanent link">&para;</a></h2>
+<p>We would like to define a widget, <code>widget_gnb_info</code>, containing data about the gNB.</p>
+<p><code>widget_gnb_info</code> should contain the following information :</p>
+<ul>
+<li>The gNB status, either offline or online.</li>
+<li>The Software Defined Radio Device being used.</li>
+<li>The locally assigned IP address.</li>
+<li>The reboot button.</li>
+</ul>
+<h3 id="gnodeb-information-routes-detailed">gNodeB information Routes detailed<a class="headerlink" href="#gnodeb-information-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="get-gnbidstatus">GET  <code>/gnb/{id}/status</code><a class="headerlink" href="#get-gnbidstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_gnb_status</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    GET /gnb/{id}/status</span>
+<span class="sd">    Returns the current status of the selected gNB.</span>
+<span class="sd">    &quot;&quot;&quot;</span> 
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-gnbidsdr">GET <code>/gnb/{id}/sdr</code><a class="headerlink" href="#get-gnbidsdr" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_gnb_sdr</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    GET /gnb/{id}/sdr</span>
+<span class="sd">    Returns the SDR device associated with the selected gNB.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-gnbidip">GET <code>/gnb/{id}/ip</code><a class="headerlink" href="#get-gnbidip" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_gnb_ip</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    GET /gnb/{id}/ip</span>
+<span class="sd">    Returns the IP address of the selected gNB.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-gnbidreboot">POST <code>/gnb/{id}/reboot</code><a class="headerlink" href="#post-gnbidreboot" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_gnb_reboot</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /gnb/{id}/reboot  </span>
+<span class="sd">    Triggers a reboot of the selected gNB.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<hr />
+<h2 id="5g-core-network">5G Core Network<a class="headerlink" href="#5g-core-network" title="Permanent link">&para;</a></h2>
+<p>We would like to define a widget, <code>widget_5GCN</code>, containing data and action button about the 5G Core Network.</p>
+<p><code>widget_5GCN</code>should contain the following information :</p>
+<ul>
+<li>The 5G Core Network status either stopped, starting, running or upgrading.</li>
+<li>An action button that stops the 5G Core Network when it is running.</li>
+<li>An action button that start the 5G Core Network and when he is running replaced by a restart button.</li>
+</ul>
+<h3 id="5g-core-network-routes-detailed">5G Core Network Routes detailed<a class="headerlink" href="#5g-core-network-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="get-corestatus">GET <code>/core/status</code><a class="headerlink" href="#get-corestatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_core_status</span><span class="p">():</span>        
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/status</span>
+<span class="sd">    Returns the current status of the 5G core network (stopped, starting, running, upgrading).  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-corestart">POST <code>/core/start</code><a class="headerlink" href="#post-corestart" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_core_start</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /core/start  </span>
+<span class="sd">    Starts the 5G core network.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-corerestart">POST <code>/core/restart</code><a class="headerlink" href="#post-corerestart" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_core_restart</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /core/restart  </span>
+<span class="sd">    Restarts the 5G core network.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-corestop">POST <code>/core/stop</code><a class="headerlink" href="#post-corestop" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_core_stop</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /core/stop  </span>
+<span class="sd">    Stops the 5G core network.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<hr />
+<h2 id="next-generation-nodeb">Next Generation NodeB<a class="headerlink" href="#next-generation-nodeb" title="Permanent link">&para;</a></h2>
+<p>We would like to define a widget, <code>widget_gNB</code>, containing data and action button about the Next Generation NodeB (gNB).</p>
+<p><code>widget_gNB</code> should contain the following information :</p>
+<ul>
+<li>The gNB status either stopped, starting, running, compiling or upgrading.</li>
+<li>An action button starts the gNB and when it is running is replaced by stop and restart buttons.</li>
+<li>A Configuration button allows the user to change the gNB startup settings.</li>
+<li>A Logs button lets the user view the gNB logs during runtime or compilation.</li>
+<li>A Reset button resets the gNB configuration file to its default values.</li>
+<li>A Compile button compiles the gNB code if it has been modified by the user.</li>
+</ul>
+<h3 id="next-generation-nodeb-routes-detailed">Next Generation NodeB Routes detailed<a class="headerlink" href="#next-generation-nodeb-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="post-gnbstart">POST <code>/gnb/start</code><a class="headerlink" href="#post-gnbstart" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_gnb_start</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /gnb/start  </span>
+<span class="sd">    Starts the gNB service.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-gnbstop">POST <code>/gnb/stop</code><a class="headerlink" href="#post-gnbstop" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_gnb_stop</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /gnb/stop  </span>
+<span class="sd">    Stops the gNB service.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-gnbrestart">POST <code>/gnb/restart</code><a class="headerlink" href="#post-gnbrestart" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_gnb_restart</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /gnb/restart  </span>
+<span class="sd">    Restarts the gNB service.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-gnbconfiguration">GET <code>/gnb/configuration</code><a class="headerlink" href="#get-gnbconfiguration" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_gnb_configuration</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /gnb/configuration  </span>
+<span class="sd">    Returns the current gNB configuration.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-gnbconfiguration">POST <code>/gnb/configuration</code><a class="headerlink" href="#post-gnbconfiguration" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_gnb_configuration</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /gnb/configuration  </span>
+<span class="sd">    Saves new gNB configuration.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="websocket-wsgnblogs">Websocket <code>/ws/gnb/logs</code><a class="headerlink" href="#websocket-wsgnblogs" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_gnb_logs</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    /ws/gnb/logs  </span>
+<span class="sd">    Websocket stream logs of the gNB during runtime or compilation.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-gnbreset">POST <code>/gnb/reset</code><a class="headerlink" href="#post-gnbreset" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_gnb_reset</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /gnb/reset  </span>
+<span class="sd">    Resets the gNB configuration to default values.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-gnbcompile">POST <code>/gnb/compile</code><a class="headerlink" href="#post-gnbcompile" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_gnb_compile</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /gnb/compile  </span>
+<span class="sd">    Compiles the gNB code.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<hr />
+<h2 id="summary-of-the-network">Summary of the Network<a class="headerlink" href="#summary-of-the-network" title="Permanent link">&para;</a></h2>
+<p>We would like to define a widget, <code>widget_summary_network</code>, containing data about the Network.</p>
+<p><code>widget_summary_network</code> should contain the following information :</p>
+<ul>
+<li>The number of gNBs connected to the 5G Core Network.</li>
+<li>The number of User Equipment (UE) attached.</li>
+<li>The real-time downlink throughput.</li>
+<li>The real-time uplink throughput.</li>
+</ul>
+<h3 id="summary-of-the-network-routes-detailed">Summary of the Network Routes detailed<a class="headerlink" href="#summary-of-the-network-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="get-summarygnb">GET <code>/summary/gnb</code><a class="headerlink" href="#get-summarygnb" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_summary_gnb</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /summary/gnb  </span>
+<span class="sd">    Returns the list of gNBs connected to the 5G core.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-summaryue">GET <code>/summary/ue</code><a class="headerlink" href="#get-summaryue" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_summary_ues</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /summary/ue</span>
+<span class="sd">    Returns the list of UEs currently attached.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="websocket-wsavgdownlink">Websocket <code>/ws/avgdownlink</code><a class="headerlink" href="#websocket-wsavgdownlink" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">avg_throughput_downlink</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    /ws/avgdownlink  </span>
+<span class="sd">    WebSocket stream for downlink throughput data.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="websocket-wsavguplink">Websocket <code>/ws/avguplink</code><a class="headerlink" href="#websocket-wsavguplink" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">avg_throughput_uplink</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    /ws/avguplink  </span>
+<span class="sd">    WebSocket stream for uplink throughput data.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<hr />
+<h2 id="network-status">Network Status<a class="headerlink" href="#network-status" title="Permanent link">&para;</a></h2>
+<h3 id="core-functions">Core functions<a class="headerlink" href="#core-functions" title="Permanent link">&para;</a></h3>
+<p>We would like to define a widget, <code>widget_core_status</code>, containing data about the Core functions.</p>
+<p><code>widget_core_status</code> should contain the following information :</p>
+<ul>
+<li>The status of all Core functions is either offline, starting or online.</li>
+</ul>
+<h3 id="network-status-routes-detailed">Network Status Routes detailed<a class="headerlink" href="#network-status-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="get-corenssfstatus">GET <code>/core/nssf/status</code><a class="headerlink" href="#get-corenssfstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_nssf_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/nssf/status  </span>
+<span class="sd">    Returns the NSSF status.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-coreausfstatus">GET <code>/core/ausf/status</code><a class="headerlink" href="#get-coreausfstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ausf_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/ausf/status  </span>
+<span class="sd">    Returns the AUSF status.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-corenrfstatus">GET <code>/core/nrf/status</code><a class="headerlink" href="#get-corenrfstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_nrf_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/nrf/status  </span>
+<span class="sd">    Returns the NRF status.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-coresmfstatus">GET <code>/core/smf/status</code><a class="headerlink" href="#get-coresmfstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_smf_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/smf/status  </span>
+<span class="sd">    Returns the SMF status.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-coreudrstatus">GET <code>/core/udr/status</code><a class="headerlink" href="#get-coreudrstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_udr_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/udr/status  </span>
+<span class="sd">    Returns the UDR status.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-coreupfstatus">GET <code>/core/upf/status</code><a class="headerlink" href="#get-coreupfstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_upf_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/upf/status  </span>
+<span class="sd">    Returns the UPF status.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-coreamfstatus">GET <code>/core/amf/status</code><a class="headerlink" href="#get-coreamfstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_amf_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/amf/status  </span>
+<span class="sd">    Returns the AMF status.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-coreudmstatus">GET <code>/core/udm/status</code><a class="headerlink" href="#get-coreudmstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_udm_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/udm/status  </span>
+<span class="sd">    Returns the UDM status.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h3 id="external-service">External service<a class="headerlink" href="#external-service" title="Permanent link">&para;</a></h3>
+<h4 id="ip-multimedia-subsystem">IP Multimedia subsystem<a class="headerlink" href="#ip-multimedia-subsystem" title="Permanent link">&para;</a></h4>
+<p>We would like to define a widget, <code>widget_IMS</code>, containing data about the Ip Multimedia Subsystem (IMS).</p>
+<p><code>widget_IMS</code>, should contain the following information :</p>
+<ul>
+<li>The IMS status should be either offline or online.</li>
+</ul>
+<h3 id="ims-routes-detailed">IMS Routes detailed<a class="headerlink" href="#ims-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="get-coreimsstatus">GET <code>/core/ims/status</code><a class="headerlink" href="#get-coreimsstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ims_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /core/ims/status  </span>
+<span class="sd">    Returns the status of the IP Multimedia Subsystem (IMS).  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h4 id="bandwidth-testing-tool">Bandwidth Testing Tool<a class="headerlink" href="#bandwidth-testing-tool" title="Permanent link">&para;</a></h4>
+<p>This widget allows users to test the uplink and downlink throughput between the User Equipment (UE) and the network via the integrated iPerf tool.</p>
+<p>We can implement this by integrating the iPerf tool in our project.</p>
+<p>To configure the uplink interface, we need an option to allow the user to define the port and the transfer protocol, and a button to initiate the test.</p>
+<p>After initialization, the iPerf command can be used in a UE terminal window :
+<div class="highlight"><pre><span></span><code>iperf -u -t 30 -b 200M -fm -i 1 -c &lt;Server IP&gt;
+</code></pre></div></p>
+<p>To make the downlink interface, we need an option to allow the user to define the desired bandwidth, destination IP, port, and transport protocol.</p>
+<p>Once the test starts, the widget provides the matching iPerf command to run on the UE.</p>
+<p>So we need to make a command generator with a baseline and custom arguments such as bandwidth, destination IP, port, and transport protocol.</p>
+<p>After that it will return the perfect iPerf command for the UE.</p>
+<h3 id="measure-routes-detailed">Measure Routes detailed<a class="headerlink" href="#measure-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="post-bandwidthuplinkstart">POST <code>/bandwidth/uplink/start</code><a class="headerlink" href="#post-bandwidthuplinkstart" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_bandwidth_uplink_start</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /bandwidth/uplink/start  </span>
+<span class="sd">    Starts the uplink iPerf server on the network.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="post-bandwidthdownlinkstart">POST <code>/bandwidth/downlink/start</code><a class="headerlink" href="#post-bandwidthdownlinkstart" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post_bandwidth_downlink_start</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    POST /bandwidth/downlink/start  </span>
+<span class="sd">    Starts the downlink iPerf client to test throughput.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-bandwidthstatus">GET <code>/bandwidth/status</code><a class="headerlink" href="#get-bandwidthstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_bandwidth_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /bandwidth/status  </span>
+<span class="sd">    Returns the current status of the bandwidth testing tool interface.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-bandwidthcommand">GET <code>/bandwidth/command</code><a class="headerlink" href="#get-bandwidthcommand" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_bandwidth_command</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /bandwidth/command  </span>
+<span class="sd">    Returns the iPerf command to be run on the UE with the given parameters.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<hr />
+<h2 id="radio-access-network">Radio Access Network<a class="headerlink" href="#radio-access-network" title="Permanent link">&para;</a></h2>
+<p>We would like to define a widget, <code>widget_RAN</code>, containing data about the Radio Access Network (RAN).</p>
+<p><code>widget_RAN</code> should contain the following information :</p>
+<ul>
+<li>The gNodeB status, either offline, starting, or online.</li>
+<li>The gNodeB configuration ( TDD, bandwidth, ...)</li>
+<li>The gNodeB current configuration and some static metrics.</li>
+<li>The gNodeB radio metrics ( RSSI, SINR, ...)</li>
+</ul>
+<h3 id="ran-routes-detailed">RAN Routes detailed<a class="headerlink" href="#ran-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="get-ranstatus">GET <code>/ran/status</code><a class="headerlink" href="#get-ranstatus" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ran_status</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /ran/status  </span>
+<span class="sd">    Returns the RAN status (offline, starting, online).  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-ranconfiguration">GET <code>/ran/configuration</code><a class="headerlink" href="#get-ranconfiguration" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ran_configuration</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /ran/configuration  </span>
+<span class="sd">    Returns the current configuration of the RAN including antennas and TDD slots.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="websocket-wsranbitrate">Websocket <code>/ws/ran/bitrate</code><a class="headerlink" href="#websocket-wsranbitrate" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">websocket_ran_bitrate</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    /ws/ran/bitrate  </span>
+<span class="sd">    WebSocket stream of RAN&#39;s bitrate data.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<hr />
+<h2 id="user-equipment">User Equipment<a class="headerlink" href="#user-equipment" title="Permanent link">&para;</a></h2>
+<p>We would like to define a widget, <code>widget_UE</code>, containing data about the User Equipment (UE).</p>
+<p><code>widget_UE</code> should contain the following information :</p>
+<ul>
+<li>The list of User Equipment</li>
+<li>User Equipment metrics (IMSI, RSSI, RSRP, Uplink and Downlink)</li>
+<li>When clicked show all radio metrics (Rssi, SINR, ...)</li>
+</ul>
+<h3 id="user-equipment-routes-detailed">User Equipment Routes detailed<a class="headerlink" href="#user-equipment-routes-detailed" title="Permanent link">&para;</a></h3>
+<h6 id="websocket-wsue_idmetric">Websocket <code>/ws/{ue_id}/{metric}</code><a class="headerlink" href="#websocket-wsue_idmetric" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">websocket_ue_metric</span><span class="p">(</span><span class="n">ue_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    /ws/{ue_id}/{metric}  </span>
+<span class="sd">    WebSocket stream for UE metrics such as:  </span>
+<span class="sd">    RSSI, RSRP, RSRQ, PHR, SINR, SNR, CQI, MCS, BLER, Bitrate, uplink, downlink.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<hr />
+<h2 id="message-flow-wireshark-view">Message Flow / Wireshark View<a class="headerlink" href="#message-flow-wireshark-view" title="Permanent link">&para;</a></h2>
+<p>We would like to define a widget, <code>widget_tshark_view</code>, containing data about packet on the 5G network with a filter.</p>
+<p><code>widget_tshark_view</code> should contain the following information :</p>
+<ul>
+<li>Time of the packet.</li>
+<li>Protocol of the packet.</li>
+<li>Summary of the message content of the packet.</li>
+</ul>
+<p>We can implement this widget by capturing packets with TShark. The data can be streamed via WebSocket for live updates, or served using a REST API.</p>
+<h6 id="websocket-wspcap">Websocket <code>/ws/pcap</code><a class="headerlink" href="#websocket-wspcap" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">websocket_packet_capture</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    /ws/pcap  </span>
+<span class="sd">    WebSocket stream for live packet capture (TShark).  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+<h6 id="get-pcap">GET <code>/pcap</code><a class="headerlink" href="#get-pcap" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_packet_capture</span><span class="p">():</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    GET /pcap  </span>
+<span class="sd">    Returns captured packets with timestamps, protocols, and summaries.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>  
+    <span class="k">pass</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>
