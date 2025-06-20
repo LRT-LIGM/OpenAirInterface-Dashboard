@@ -47,7 +47,13 @@ class GNodeBManager:
             raise FileNotFoundError("gNB executable not found.")
 
         self.process = subprocess.Popen(
-            [str(self.executable_path), "-O", str(self.config_path)],
+            [
+                str(self.executable_path),
+                "-O", str(self.config_path),
+                "--gNBs.[0].min_rxtxtime", "6",
+                "-E",
+                "--continuous-tx",
+            ],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
