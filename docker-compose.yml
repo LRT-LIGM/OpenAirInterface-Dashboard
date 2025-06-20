@@ -15,7 +15,9 @@ services:
       - ./config:/app/config
     depends_on:
       - prometheus
-
+    networks:
+      oai-cn5g-public-net:
+        ipv4_address: 192.168.70.150
 
 
   fastapiapp:
@@ -25,7 +27,8 @@ services:
       dockerfile: backend/dockerfile
     container_name: fastapiapp
     networks:
-      - oai-cn5g-public-net
+      oai-cn5g-public-net:
+        ipv4_address: 192.168.70.151
     ports:
       - "8001:8000" # [FastAPI] Expose FastAPI internal port 8000 on host port 8001 (http://localhost:8001)
       - "2152:2152/udp" # [gNodeB] The gNodeB uses UDP port 2152 for the traffic
@@ -57,6 +60,9 @@ services:
       - "9090:9090"
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      oai-cn5g-public-net:
+        ipv4_address: 192.168.70.152
 
 networks:
   oai-cn5g-public-net:
