@@ -34,6 +34,7 @@ nav:
       - Configuration of Monitored Services: configuration.md
       - Packet capture : packet_capture_features.md
       - GNodeB Implementation: gnodeb_doc.md
+      - InfluxDB Implementation: influxdb_doc.md
 
   - API Reference:
       - Backend API: api/backend.md
