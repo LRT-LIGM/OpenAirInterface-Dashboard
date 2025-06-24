@@ -46,11 +46,15 @@ services:
     depends_on:
       - prometheus
     environment:
-      - PROMETHEUS_URL=http://prometheus:9090
-      - FIVEG_CORE_DOCK ER_COMPOSE_PATH=/home/user/oai-cn5g/docker-compose.yaml # [CoreNetwork] Path to CN5G docker-compose to manage CN5G
+      - PROMETHEUS_URL=http://prometheus:9090 # [Database] URL to access Prometheus for metrics collection
+      - INFLUXDB_URL=http://influxdatabase:8086 # [Database] URL to access InfluxDB for storing time-series data
+      - FIVEG_CORE_DOCKER_COMPOSE_PATH=/home/user/oai-cn5g/docker-compose.yaml # [CoreNetwork] Path to CN5G docker-compose to manage CN5G
       - GNB_CONFIG_PATH=/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF/oaibox.yaml # [gNodeB] Path to gNB configuration file
       - GNB_EXECUTABLE=/home/user/openairinterface5g/cmake_targets/ran_build/build/nr-softmodem # [gNodeB] Path to gNB executable
-      - CONFIG_DIR = /home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF # [gNodeB] Path to the directory containing all configuration files for the gNodeB
+      - CONFIG_DIR=/home/user/openairinterface5g/targets/PROJECTS/GENERIC-NR-5GC/CONF # [gNodeB] Path to the directory containing all configuration files for the gNodeB
+      - METRIC_POLL_INTERVAL_SECONDS=2 # [Database] Interval in seconds between each polling of metrics from the database
+      - INFLUXDB_TOKEN=t4-LvYHU3ITjvYPytZZb5nv3AJUXjKWH01izuuj01P73QujeTCJOvcxVCIMAqZAoY1lPu8oYQR26xRl0yhDNKA== # [Database] Authentication token for accessing InfluxDB
+
 
   prometheus:
     image: prom/prometheus
@@ -66,6 +70,23 @@ services:
 networks:
   oai-cn5g-public-net:
     external: true
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdatabase
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb/data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
+      - DOCKER_INFLUXDB_INIT_ORG=oai
+      - DOCKER_INFLUXDB_INIT_BUCKET=oai_metrics
+      - DOCKER_INFLUXDB_INIT_TOKEN=t4-LvYHU3ITjvYPytZZb5nv3AJUXjKWH01izuuj01P73QujeTCJOvcxVCIMAqZAoY1lPu8oYQR26xRl0yhDNKA==
+volumes:
+  influxdb-storage:
 
 #  gnb_monitor:
 #    build:
@@ -121,18 +142,3 @@ networks:
 #    container_name: node_exporter
 #    ports:
 #      - "9100:9100"
-
-#  influxdb:
-#    image: influxdb:2.7
-#    container_name: influxdb
-#    ports:
-#      - "8086:8086"
-#    volumes:
-#      - ./influxdb/data:/var/lib/influxdb2
-#    environment:
-#      - DOCKER_INFLUXDB_INIT_MODE=setup
-#      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-#      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123
-#      - DOCKER_INFLUXDB_INIT_ORG=oai
-#      - DOCKER_INFLUXDB_INIT_BUCKET=oai_metrics
-#      - DOCKER_INFLUXDB_INIT_TOKEN=mysecrettoken
